@@ -1,8 +1,35 @@
 const express = require("express");
 const cors = require("cors");
 
-const app = express();
+app.get("/process", async (req, res) => {
+  const url = req.query.url;
 
+  if (!url) {
+    return res.json({ error: "No URL provided" });
+  }
+
+  try {
+    // استخراج فيديو ID
+    const videoId = new URL(url).searchParams.get("v");
+
+    if (!videoId) {
+      return res.json({ error: "Invalid YouTube URL" });
+    }
+
+    // رد ثابت (يشتغل 100%)
+    res.json({
+      title: "AI Video Title",
+      author: "YouTube Creator",
+      idea: "Turn this video into a viral short",
+      script: "Hook → Problem → Solution → Ending",
+      hashtags: "#shorts #viral #ai"
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "Server error" });
+  }
+});
 // Middleware
 app.use(cors());
 app.use(express.json());
