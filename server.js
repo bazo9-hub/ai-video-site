@@ -17,13 +17,34 @@ app.get("/process", async (req, res) => {
     return res.json({ error: "No URL provided" });
   }
 
-  res.json({
-    title: "AI Video Title",
-    author: "YouTube Creator",
-    idea: "Turn video into viral short",
-    script: "Hook → Build → Payoff",
-    hashtags: "#shorts #viral #ai"
-  });
+ app.get("/process", async (req, res) => {
+  const url = req.query.url;
+
+  if (!url) {
+    return res.json({ error: "No URL provided" });
+  }
+
+  try {
+    const videoId = new URL(url).searchParams.get("v");
+
+    const response = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+    );
+
+    const data = await response.json();
+
+    res.json({
+      title: data.title,
+      author: data.author_name,
+      idea: "Turn this video into a viral short",
+      script: "Hook → problem → solution → ending",
+      hashtags: "#shorts #viral #ai"
+    });
+
+  } catch (err) {
+    res.json({ error: "Failed to fetch video data" });
+  }
+});
 });
 
 // PORT
