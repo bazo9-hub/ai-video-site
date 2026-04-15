@@ -236,7 +236,7 @@ window.generate = async function(){
 
   try {
 
-    const res = await fetch("http://localhost:3000/process?url=" + url);
+    const res = await fetch("https://ai-video-site-19g4.onrender.com/process?url=" + encodeURIComponent(url));
     const data = await res.json();
 
     document.getElementById("result").innerHTML = `
