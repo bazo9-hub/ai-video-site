@@ -1,58 +1,32 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
-// HOME
-app.get("/", (req, res) => {
-  res.send("Server is running 🚀");
+app.get('/', (req, res) => {
+    res.send('✅ السيرفر شغال');
 });
 
-// PROCESS API
-app.get("/process", async (req, res) => {
-  const url = req.query.url;
+app.get('/process', async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.json({ error: 'لا يوجد رابط' });
 
-  if (!url) {
-    return res.json({ error: "No URL provided" });
-  }
-
-  try {
-    let videoId = "";
-
-    if (url.includes("youtu.be/")) {
-      videoId = url.split("youtu.be/")[1].split("?")[0];
-    } else if (url.includes("v=")) {
-      videoId = new URL(url).searchParams.get("v");
-    } else {
-      videoId = url;
+    try {
+        const response = await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);
+        const data = await response.json();
+        res.json({
+            title: data.title,
+            author: data.author_name,
+            idea: "فكرة فيديو قصير: ابدأ بسؤال مثير",
+            script: "نص تجريبي: 3 نصائح ذهبية في 30 ثانية",
+            hashtags: "#shorts #tips #youtube"
+        });
+    } catch (err) {
+        res.json({ error: 'فشل الاتصال بـ YouTube' });
     }
-
-    const response = await fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-    );
-
-    const data = await response.json();
-
-    res.json({
-      title: data.title || "No title",
-      author: data.author_name || "Unknown",
-      idea: "Turn this video into a viral short",
-      script: "Hook → build → payoff",
-      hashtags: "#shorts #viral #ai"
-    });
-
-  } catch (err) {
-    res.json({
-      error: "Failed to fetch video data",
-      details: err.message
-    });
-  }
 });
 
-// PORT
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
