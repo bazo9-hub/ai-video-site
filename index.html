@@ -147,6 +147,9 @@ p{
 
 <!-- APP -->
 <div id="appBox" class="card" style="display:none;">
+  <button class="primary" onclick="testSecret()">
+Test Firestore
+</button>
   <h1>🎬 Create AI Video</h1>
   <p>Paste your YouTube link</p>
 
@@ -170,7 +173,11 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
+import {
+  getFirestore,
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 // 🔥 كودك (صحيح)
 const firebaseConfig = {
   apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
@@ -183,7 +190,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
+const db = getFirestore(app);
 // 👤 SIGN UP
 window.signup = function(){
   let email = document.getElementById("email").value;
@@ -255,7 +262,25 @@ window.generate = async function(){
 document.getElementById("upgradeBtn").onclick = function(){
   alert("Payment coming soon 💳");
 }
+window.testSecret = async function () {
 
+  try {
+
+    await addDoc(collection(db, "secrets"), {
+      message: "Hello World",
+      createdAt: Date.now()
+    });
+
+    alert("✅ Secret Saved");
+
+  } catch (err) {
+
+    console.error(err);
+    alert("❌ Error");
+
+  }
+
+}
 </script>
 </body>
 </html>
