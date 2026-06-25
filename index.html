@@ -147,8 +147,7 @@ p{
 
 <!-- APP -->
 <div id="appBox" class="card" style="display:none;">
-  <button class="primary" onclick="testSecret()">
-Test Firestore
+Test F<button id="testBtn" class="primary">Test Firestore</button>irestore
 </button>
   <h1>🎬 Create AI Video</h1>
   <p>Paste your YouTube link</p>
@@ -281,6 +280,7 @@ window.testSecret = async function () {
   }
 
 }
+document.getElementById("testBtn").addEventListener("click", testSecret);
 </script>
 </body>
 </html>
