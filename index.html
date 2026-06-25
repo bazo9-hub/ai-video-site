@@ -263,20 +263,20 @@ document.getElementById("upgradeBtn").onclick = function(){
   alert("Payment coming soon 💳");
 }
 window.testSecret = async function () {
+  alert("Button works");
 
   try {
-
     await addDoc(collection(db, "secrets"), {
       message: "Hello World",
       createdAt: Date.now()
     });
 
     alert("✅ Secret Saved");
-
   } catch (err) {
-
     console.error(err);
     alert("❌ Error");
+  }
+}
 
   }
 
