@@ -3,12 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazo - كرة أرضية 3D</title>
-
-<!-- ===== مكتبة Cesium (الكرة الأرضية) ===== -->
-<script src="https://cesium.com/downloads/cesiumjs/releases/1.105/Build/Cesium/Cesium.js"></script>
-<link href="https://cesium.com/downloads/cesiumjs/releases/1.105/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
+<title>Bazo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 body{margin:0;font-family:Arial;background:#1a1a2e;color:white;text-align:center}
 #loginBox{padding:50px}
@@ -16,12 +13,11 @@ body{margin:0;font-family:Arial;background:#1a1a2e;color:white;text-align:center
 #map{height:90vh;width:100%}
 input,button{padding:10px 20px;margin:5px;border-radius:8px;border:none}
 button{background:#4CAF50;color:white;cursor:pointer}
-#topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left;padding-left:20px;padding-right:20px}
+#topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left}
 </style>
 </head>
 <body>
 
-<!-- ===== تسجيل الدخول ===== -->
 <div id="loginBox">
   <h1>🔐 Bazo</h1>
   <input id="email" placeholder="Email"><br>
@@ -31,22 +27,19 @@ button{background:#4CAF50;color:white;cursor:pointer}
   <p id="status"></p>
 </div>
 
-<!-- ===== التطبيق ===== -->
 <div id="appBox">
   <div id="topBar">
-    <h2>🌍 Bazo (3D Globe)</h2>
+    <h2>🌍 Bazo</h2>
     <button onclick="logout()">تسجيل خروج</button>
   </div>
   <div id="map"></div>
 </div>
 
-<!-- ===== Firebase ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// ===== إعدادات Firebase =====
 var firebaseConfig = {
   apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
   authDomain: "bazo-a36fe.firebaseapp.com",
@@ -62,189 +55,105 @@ firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
 
-// ===== دوال تسجيل الدخول (معرفة بشكل صحيح) =====
-window.signup = function() {
+window.signup = function(){
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
   auth.createUserWithEmailAndPassword(email, password)
-    .then(function() {
-      document.getElementById("status").innerText = "✅ تم إنشاء الحساب";
-    })
-    .catch(function(e) {
-      alert(e.message);
-    });
+    .then(function(){ document.getElementById("status").innerText = "✅ تم إنشاء الحساب"; })
+    .catch(function(e){ alert(e.message); });
 };
 
-window.login = function() {
+window.login = function(){
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
   auth.signInWithEmailAndPassword(email, password)
-    .then(function() {
-      document.getElementById("status").innerText = "✅ تم تسجيل الدخول";
-    })
-    .catch(function(e) {
-      alert(e.message);
-    });
+    .then(function(){ document.getElementById("status").innerText = "✅ تم تسجيل الدخول"; })
+    .catch(function(e){ alert(e.message); });
 };
 
-window.logout = function() {
-  auth.signOut();
-};
+window.logout = function(){ auth.signOut(); };
 
-// ===== متغير الكرة الأرضية =====
-var viewer;
+var map;
 
-// ===== تبديل الواجهة =====
-auth.onAuthStateChanged(function(user) {
-  if (user) {
+auth.onAuthStateChanged(function(user){
+  if(user){
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("appBox").style.display = "block";
-    startGlobe(user);
+    startMap(user);
   } else {
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("appBox").style.display = "none";
   }
 });
 
-// ===== تشغيل الكرة الأرضية 3D =====
-function startGlobe(user) {
-  // نستخدم token عام (مجاني، لا يحتاج حساب، لكن محدود)
-  Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2NmU3NzA5MC0wMzgwLTRhMDItYjllNS0wY2I4YmUyMjUxNDIiLCJpZCI6MTUwMzc0LCJpYXQiOjE3MDU5MzUyNjl9.MVqU_4TtT7sDQp5QzFZs3Bj6h7gSQfZJkL5VpLqR1aM';
+function startMap(user){
+  map = L.map('map', {
+    center: [20, 0],
+    zoom: 2,
+    minZoom: 1,
+    maxZoom: 18,
+    maxBounds: [[-85, -180], [85, 180]],
+    maxBoundsViscosity: 0.5
+  });
 
-  viewer = new Cesium.Viewer('map', {
-    globe: true,
-    terrain: false,
-    imageryProvider: new Cesium.TileMapServiceImageryProvider({
-      url: Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    noWrap: true,
+    minZoom: 1,
+    maxZoom: 18
+  }).addTo(map);
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat = pos.coords.latitude;
+    var lng = pos.coords.longitude;
+    map.setView([lat, lng], 13);
+    L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+  }, function(){
+    alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
+  });
+
+  map.on('click', function(e){
+    var lat = e.latlng.lat;
+    var lng = e.latlng.lng;
+    var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
+    if(!msg) return;
+
+    db.collection("messages").add({
+      uid: user.uid,
+      username: user.email || 'مجهول',
+      latitude: lat,
+      longitude: lng,
+      message: msg,
+      createdAt: new Date()
     })
-    // إخفاء الأدوات الزائدة
-  viewer.animation.container.style.display = 'none';
-  viewer.timeline.container.style.display = 'none';
-  viewer.geocoder.container.style.display = 'none';
-  viewer.homeButton.container.style.display = 'none';
-  viewer.fullscreenButton.container.style.display = 'none';
+    .then(function(){
+      alert('✅ تم حفظ رسالتك!');
+      var marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup("<b>" + user.email + "</b><br>" + msg);
+    })
+    .catch(function(err){ alert('❌ فشل الحفظ: ' + err.message); });
+  });
 
-  // ===== موقع المستخدم =====
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      var lng = pos.coords.longitude;
-      var lat = pos.coords.latitude;
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(lng, lat, 2000000)
-      });
-      // إضافة نقطة الموقع
-      viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(lng, lat),
-        billboard: {
-          image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="blue"%3E%3Cpath d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/%3E%3C/svg%3E',
-          width: 32,
-          height: 32
-        },
-        label: {
-          text: '📍 أنت هنا',
-          font: '14px sans-serif',
-          fillColor: Cesium.Color.WHITE,
-          backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -20)
-        }
-      });
-    }, function() {
-      alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
-    });
-  }
-
-  // ===== الضغط على الكرة الأرضية لكتابة رسالة =====
-  viewer.screenSpaceEventHandler.setInputAction(function(click) {
-    var ray = viewer.camera.getPickRay(click.position);
-    var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-    if (cartesian) {
-      var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      var lat = Cesium.Math.toDegrees(cartographic.latitude);
-      var lng = Cesium.Math.toDegrees(cartographic.longitude);
-
-      var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
-      if (!msg) return;
-
-      db.collection("messages").add({
-        uid: user.uid,
-        username: user.email || 'مجهول',
-        latitude: lat,
-        longitude: lng,
-        message: msg,
-        createdAt: new Date()
-      })
-      .then(function() {
-        alert('✅ تم حفظ رسالتك!');
-        // إضافة العلامة الحمراء مع النص
-        viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(lng, lat),
-          billboard: {
-            image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"%3E%3Cpath d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/%3E%3C/svg%3E',
-            width: 32,
-            height: 32
-          },
-          label: {
-            text: user.email + '\n' + msg,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -20)
-          }
-        });
-      })
-      .catch(function(err) {
-        alert('❌ فشل الحفظ: ' + err.message);
-      });
-    }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-  // ===== تحميل الرسائل القديمة =====
   loadMessages();
 }
 
-// ===== جلب الرسائل =====
-function loadMessages() {
+function loadMessages(){
   db.collection("messages").get()
-    .then(function(snapshot) {
-      snapshot.forEach(function(doc) {
+    .then(function(snapshot){
+      snapshot.forEach(function(doc){
         var data = doc.data();
-        if (data.latitude && data.longitude) {
-          var text = data.username + '\n' + data.message;
-          if (data.createdAt && data.createdAt.toDate) {
-            text += '\n' + data.createdAt.toDate().toLocaleDateString();
+        if(data.latitude && data.longitude){
+          var marker = L.marker([data.latitude, data.longitude]).addTo(map);
+          var text = "<b>" + (data.username || 'مجهول') + "</b><br>" + data.message;
+          if(data.createdAt && data.createdAt.toDate){
+            text += "<br><small>" + data.createdAt.toDate().toLocaleDateString() + "</small>";
           }
-          viewer.entities.add({
-            position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
-            billboard: {
-              image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"%3E%3Cpath d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/%3E%3C/svg%3E',
-              width: 28,
-              height: 28
-            },
-            label: {
-              text: text,
-              font: '12px sans-serif',
-              fillColor: Cesium.Color.WHITE,
-              backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
-              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-              outlineWidth: 2,
-              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-              pixelOffset: new Cesium.Cartesian2(0, -18)
-            }
-          });
+          marker.bindPopup(text);
         }
       });
     })
-    .catch(function(err) {
-      console.error('خطأ في تحميل الرسائل:', err);
-    });
+    .catch(function(err){ console.error('خطأ في تحميل الرسائل:', err); });
 }
 </script>
-
 </body>
 </html>
