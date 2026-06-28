@@ -1,17 +1,6 @@
-}, () => {
-    alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
-  });
-
-  // ===== عند الضغط على الخريطة =====
-  map.on('click', async (e) => {
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-
-    // نافذة كتابة الرسالة
-    const msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
+const msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
     if(!msg) return;
 
-    // حفظ في Firestore
     try {
       await db.collection("messages").add({
         uid: user.uid,
@@ -22,7 +11,6 @@
         createdAt: new Date()
       });
       alert('✅ تم حفظ رسالتك!');
-      // إضافة العلامة فوراً
       L.marker([lat, lng]).addTo(map)
         .bindPopup(`<b>${user.email}</b><br>${msg}`);
     } catch(err){
