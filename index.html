@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazo</title>
+<title>Bazo - مع الإعجابات ❤️</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -14,6 +14,10 @@ body{margin:0;font-family:Arial;background:#1a1a2e;color:white;text-align:center
 input,button{padding:10px 20px;margin:5px;border-radius:8px;border:none}
 button{background:#4CAF50;color:white;cursor:pointer}
 #topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.like-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:0 8px;color:#ff4757}
+.like-btn:hover{transform:scale(1.2)}
+.popup-text{font-size:14px;line-height:1.6;text-align:center;min-width:150px}
+.popup-text .likes-count{color:#ff4757;font-weight:bold}
 </style>
 </head>
 <body>
@@ -74,8 +78,10 @@ window.login = function(){
 window.logout = function(){ auth.signOut(); };
 
 var map;
+var currentUser = null;
 
 auth.onAuthStateChanged(function(user){
+  currentUser = user;
   if(user){
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("appBox").style.display = "block";
@@ -86,6 +92,49 @@ auth.onAuthStateChanged(function(user){
   }
 });
 
+// ===== دالة الإعجاب =====
+window.likeMessage = function(docId, currentLikes) {
+  if (!currentUser) {
+    alert("يجب تسجيل الدخول للإعجاب");
+    return;
+  }
+
+  var docRef = db.collection("messages").doc(docId);
+  
+  // نجيب المستند عشان نتأكد إن المستخدم ما أعجب قبل كذا
+  docRef.get().then(function(doc) {
+    if (doc.exists) {
+      var data = doc.data();
+      var likedBy = data.likedBy || [];
+      
+      // إذا المستخدم موجود في القائمة، يعني سبق أعجب
+      if (likedBy.includes(currentUser.uid)) {
+        alert("لقد أعجبت بهذه الرسالة مسبقاً ❤️");
+        return;
+      }
+      
+      // نضيف المستخدم لقائمة المعجبين ونزيد العدد
+      likedBy.push(currentUser.uid);
+      var newLikes = (data.
+                      likes || 0) + 1;
+      
+      docRef.update({
+        likes: newLikes,
+        likedBy: likedBy
+      }).then(function() {
+        alert("✅ تم الإعجاب!");
+        // نحدث العدد في الشاشة (نعيد تحميل الرسائل)
+        loadMessages();
+      }).catch(function(err) {
+        alert("❌ فشل الإعجاب: " + err.message);
+      });
+    }
+  }).catch(function(err) {
+    alert("❌ خطأ: " + err.message);
+  });
+};
+
+// ===== تشغيل الخريطة =====
 function startMap(user){
   map = L.map('map', {
     center: [20, 0],
@@ -124,12 +173,13 @@ function startMap(user){
       latitude: lat,
       longitude: lng,
       message: msg,
-      createdAt: new Date()
+      createdAt: new Date(),
+      likes: 0,
+      likedBy: []
     })
-    .then(function(){
+    .then(function(docRef){
       alert('✅ تم حفظ رسالتك!');
-      var marker = L.marker([lat, lng]).addTo(map);
-      marker.bindPopup("<b>" + user.email + "</b><br>" + msg);
+      loadMessages(); // نعيد تحميل كل الرسائل عشان تظهر مع الزر
     })
     .catch(function(err){ alert('❌ فشل الحفظ: ' + err.message); });
   });
@@ -137,18 +187,52 @@ function startMap(user){
   loadMessages();
 }
 
+// ===== جلب الرسائل وعرضها مع زر الإعجاب =====
 function loadMessages(){
+  // نحذف جميع العلامات القديمة (نظف الخريطة عشان ما تتكرر)
+  map.eachLayer(function(layer){
+    if(!!layer.getPopup){
+      map.removeLayer(layer);
+    }
+  });
+
+  // نضيف طبقة الخريطة مرة ثانية (لأننا حذفناها مع العلامات)
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    noWrap: true,
+    minZoom: 1,
+    maxZoom: 18
+  }).addTo(map);
+
+  // نعيد إضافة علامة "أنت هنا" إذا كان الموقع معروف
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+    }, function(){});
+  }
+
   db.collection("messages").get()
     .then(function(snapshot){
       snapshot.forEach(function(doc){
         var data = doc.data();
+        var docId = doc.id;
         if(data.latitude && data.longitude){
+          var likes = data.likes || 0;
+          
+          // نصنع محتوى البوب أب
+          var popupContent = 
+            '<div class="popup-text">' +
+            '<b>' + (data.username || 'مجهول') + '</b><br>' +
+            data.message + '<br>' +
+            '<span class="likes-count">❤️ ' + likes + '</span>' +
+            ' <button class="like-btn" onclick="likeMessage(\'' + docId + '\',' + likes + ')">👍</button>' +
+            '<br><small>' + (data.createdAt?.toDate?.()?.toLocaleDateString() || '') + '</small>' +
+            '</div>';
+
           var marker = L.marker([data.latitude, data.longitude]).addTo(map);
-          var text = "<b>" + (data.username || 'مجهول') + "</b><br>" + data.message;
-          if(data.createdAt && data.createdAt.toDate){
-            text += "<br><small>" + data.createdAt.toDate().toLocaleDateString() + "</small>";
-          }
-          marker.bindPopup(text);
+          marker.bindPopup(popupContent);
         }
       });
     })
