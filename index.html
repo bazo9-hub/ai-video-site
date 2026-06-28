@@ -3,25 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazo - مع الإعجابات ❤️</title>
+<title>Bazo - كامل</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 body{margin:0;font-family:Arial;background:#1a1a2e;color:white;text-align:center}
 #loginBox{padding:50px}
 #appBox{display:none;height:100vh}
+#mapPage{height:100vh;display:block}
+#profilePage{display:none;padding:20px;text-align:left;max-width:600px;margin:auto;height:90vh;overflow-y:auto}
 #map{height:90vh;width:100%}
 input,button{padding:10px 20px;margin:5px;border-radius:8px;border:none}
-button{background:#4CAF50;color:white;cursor:pointer}
-#topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left}
+button{background:#4CAF50;color:white;cursor:pointer;font-size:14px}
+button:hover{opacity:0.8}
+#topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left;flex-wrap:wrap}
+#topBar button{margin:2px}
 .like-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:0 8px;color:#ff4757}
-.like-btn:hover{transform:scale(1.2)}
-.popup-text{font-size:14px;line-height:1.6;text-align:center;min-width:150px}
-.popup-text .likes-count{color:#ff4757;font-weight:bold}
+.comment-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:0 8px;color:#1e90ff}
+.popup-text{font-size:14px;line-height:1.8;text-align:center;min-width:200px;max-width:280px}
+.likes-count{color:#ff4757;font-weight:bold}
+.comment-box{background:#f0f0f0;color:#333;padding:5px 10px;border-radius:5px;margin:5px 0;font-size:13px;text-align:left}
+.profile-item{background:#2d2d44;padding:10px;margin:8px 0;border-radius:8px;border-left:4px solid #4CAF50}
+.profile-item small{color:#aaa}
+.back-btn{background:#555}
 </style>
 </head>
 <body>
 
+<!-- ===== تسجيل الدخول ===== -->
 <div id="loginBox">
   <h1>🔐 Bazo</h1>
   <input id="email" placeholder="Email"><br>
@@ -31,19 +40,41 @@ button{background:#4CAF50;color:white;cursor:pointer}
   <p id="status"></p>
 </div>
 
+<!-- ===== التطبيق ===== -->
 <div id="appBox">
   <div id="topBar">
     <h2>🌍 Bazo</h2>
-    <button onclick="logout()">تسجيل خروج</button>
+    <div>
+      <button onclick="showProfile()">👤 حسابي</button>
+      <button onclick="logout()">تسجيل خروج</button>
+    </div>
   </div>
-  <div id="map"></div>
+  
+  <!-- صفحة الخريطة -->
+  <div id="mapPage">
+    <div id="map"></div>
+  </div>
+
+  <!-- صفحة الملف الشخصي -->
+  <div id="profilePage">
+    <button onclick="goToMap()" class="back-btn">🔙 رجوع للخريطة</button>
+    <h2>👤 الملف الشخصي</h2>
+    <p><strong>البريد:</strong> <span id="profileEmail"></span></p>
+    <p><strong>عدد رسائلي:</strong> <span id="profileCount"></span></p>
+    <p><strong>❤️ إجمالي الإعجابات المستلمة:</strong> <span id="profileLikes"></span></p>
+    <hr>
+    <h3>📝 رسائلي</h3>
+    <div id="profileMessages"></div>
+  </div>
 </div>
 
+<!-- ===== Firebase ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
+// ===== إعدادات Firebase =====
 var firebaseConfig = {
   apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
   authDomain: "bazo-a36fe.firebaseapp.com",
@@ -59,6 +90,7 @@ firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
 
+// ===== دوال تسجيل الدخول =====
 window.signup = function(){
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
@@ -70,16 +102,19 @@ window.signup = function(){
 window.login = function(){
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email, password)
+  auth.
+    signInWithEmailAndPassword(email, password)
     .then(function(){ document.getElementById("status").innerText = "✅ تم تسجيل الدخول"; })
     .catch(function(e){ alert(e.message); });
 };
 
 window.logout = function(){ auth.signOut(); };
 
+// ===== متغيرات =====
 var map;
 var currentUser = null;
 
+// ===== تبديل الواجهة =====
 auth.onAuthStateChanged(function(user){
   currentUser = user;
   if(user){
@@ -92,45 +127,85 @@ auth.onAuthStateChanged(function(user){
   }
 });
 
-// ===== دالة الإعجاب =====
-window.likeMessage = function(docId, currentLikes) {
-  if (!currentUser) {
-    alert("يجب تسجيل الدخول للإعجاب");
-    return;
-  }
+// ===== دوال التنقل بين الخريطة والملف الشخصي =====
+window.goToMap = function() {
+  document.getElementById("mapPage").style.display = "block";
+  document.getElementById("profilePage").style.display = "none";
+  // نحدث الخريطة لو ضاعت
+  if(map) map.invalidateSize();
+};
 
-  var docRef = db.collection("messages").doc(docId);
+window.showProfile = function() {
+  document.getElementById("mapPage").style.display = "none";
+  document.getElementById("profilePage").style.display = "block";
+  loadProfile();
+};
+
+// ===== تحميل الملف الشخصي =====
+function loadProfile() {
+  if(!currentUser) return;
+  document.getElementById("profileEmail").innerText = currentUser.email;
   
-  // نجيب المستند عشان نتأكد إن المستخدم ما أعجب قبل كذا
+  db.collection("messages").where("uid", "==", currentUser.uid).get()
+    .then(function(snapshot) {
+      var count = 0;
+      var totalLikes = 0;
+      var html = "";
+      snapshot.forEach(function(doc) {
+        var data = doc.data();
+        count++;
+        totalLikes += (data.likes || 0);
+        html += '<div class="profile-item">' +
+                '<b>' + data.message + '</b><br>' +
+                '<small>📍 ' + data.latitude.toFixed(4) + ', ' + data.longitude.toFixed(4) + '</small><br>' +
+                '<small>❤️ ' + (data.likes || 0) + ' إعجاب</small>' +
+                '</div>';
+      });
+      document.getElementById("profileCount").innerText = count;
+      document.getElementById("profileLikes").innerText = totalLikes;
+      document.getElementById("profileMessages").innerHTML = html || "لا توجد رسائل بعد.";
+    })
+    .catch(function(err) { console.error(err); });
+}
+
+// ===== دالة الإعجاب (معدلة) =====
+window.likeMessage = function(docId) {
+  if (!currentUser) { alert("يجب تسجيل الدخول"); return; }
+  var docRef = db.collection("messages").doc(docId);
   docRef.get().then(function(doc) {
     if (doc.exists) {
       var data = doc.data();
       var likedBy = data.likedBy || [];
-      
-      // إذا المستخدم موجود في القائمة، يعني سبق أعجب
       if (likedBy.includes(currentUser.uid)) {
-        alert("لقد أعجبت بهذه الرسالة مسبقاً ❤️");
+        alert("لقد أعجبت مسبقاً ❤️");
         return;
       }
-      
-      // نضيف المستخدم لقائمة المعجبين ونزيد العدد
       likedBy.push(currentUser.uid);
-      var newLikes = (data.
-                      likes || 0) + 1;
-      
-      docRef.update({
-        likes: newLikes,
-        likedBy: likedBy
-      }).then(function() {
+      var newLikes = (data.likes || 0) + 1;
+      docRef.update({ likes: newLikes, likedBy: likedBy }).then(function() {
         alert("✅ تم الإعجاب!");
-        // نحدث العدد في الشاشة (نعيد تحميل الرسائل)
-        loadMessages();
-      }).catch(function(err) {
-        alert("❌ فشل الإعجاب: " + err.message);
-      });
+        loadMessages(); // نحدث الخريطة
+      }).catch(function(err) { alert("❌ فشل: " + err.message); });
     }
+  });
+};
+
+// ===== دالة إضافة تعليق =====
+window.addComment = function(docId) {
+  if (!currentUser) { alert("يجب تسجيل الدخول"); return; }
+  var commentText = prompt("💬 اكتب تعليقك:");
+  if (!commentText) return;
+  
+  db.collection("messages").doc(docId).collection("comments").add({
+    uid: currentUser.uid,
+    username: currentUser.email || 'مجهول',
+    text: commentText,
+    createdAt: new Date()
+  }).then(function() {
+    alert("✅ تم إضافة التعليق!");
+    loadMessages(); // نحدث الخريطة
   }).catch(function(err) {
-    alert("❌ خطأ: " + err.message);
+    alert("❌ فشل إضافة التعليق: " + err.message);
   });
 };
 
@@ -152,15 +227,17 @@ function startMap(user){
     maxZoom: 18
   }).addTo(map);
 
+  // موقع المستخدم
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat = pos.coords.latitude;
     var lng = pos.coords.longitude;
     map.setView([lat, lng], 13);
     L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
   }, function(){
-    alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
+    // إذا رفض الموقع، نبقى في عرض العالم
   });
 
+  // الضغط للكتابة
   map.on('click', function(e){
     var lat = e.latlng.lat;
     var lng = e.latlng.lng;
@@ -177,9 +254,9 @@ function startMap(user){
       likes: 0,
       likedBy: []
     })
-    .then(function(docRef){
+    .then(function(){
       alert('✅ تم حفظ رسالتك!');
-      loadMessages(); // نعيد تحميل كل الرسائل عشان تظهر مع الزر
+      loadMessages();
     })
     .catch(function(err){ alert('❌ فشل الحفظ: ' + err.message); });
   });
@@ -187,16 +264,16 @@ function startMap(user){
   loadMessages();
 }
 
-// ===== جلب الرسائل وعرضها مع زر الإعجاب =====
+// ===== جلب الرسائل مع التعليقات =====
 function loadMessages(){
-  // نحذف جميع العلامات القديمة (نظف الخريطة عشان ما تتكرر)
+  // تنظيف الخريطة (نحذف كل الطبقات ما عدا طبقة التايل)
   map.eachLayer(function(layer){
-    if(!!layer.getPopup){
+    if(!!layer.getPopup || !!layer._popup){
       map.removeLayer(layer);
     }
   });
 
-  // نضيف طبقة الخريطة مرة ثانية (لأننا حذفناها مع العلامات)
+  // نعيد طبقة التايل (تأكد أنها موجودة)
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap',
     noWrap: true,
@@ -204,7 +281,7 @@ function loadMessages(){
     maxZoom: 18
   }).addTo(map);
 
-  // نعيد إضافة علامة "أنت هنا" إذا كان الموقع معروف
+  // نعيد علامة "أنت هنا" إذا أمكن
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(pos){
       var lat = pos.coords.latitude;
@@ -213,6 +290,7 @@ function loadMessages(){
     }, function(){});
   }
 
+  // جلب الرسائل
   db.collection("messages").get()
     .then(function(snapshot){
       snapshot.forEach(function(doc){
@@ -221,22 +299,55 @@ function loadMessages(){
         if(data.latitude && data.longitude){
           var likes = data.likes || 0;
           
-          // نصنع محتوى البوب أب
+          // نصنع البوب أب الأساسي
           var popupContent = 
             '<div class="popup-text">' +
             '<b>' + (data.username || 'مجهول') + '</b><br>' +
             data.message + '<br>' +
             '<span class="likes-count">❤️ ' + likes + '</span>' +
-            ' <button class="like-btn" onclick="likeMessage(\'' + docId + '\',' + likes + ')">👍</button>' +
+            ' <button class="like-btn" onclick="likeMessage(\'' + docId + '\')">👍</button>' +
+            ' <button class="comment-btn" onclick="addComment(\'' + docId + '\')">💬</button>' +
             '<br><small>' + (data.createdAt?.toDate?.()?.toLocaleDateString() || '') + '</small>' +
+            '<hr style="margin:5px 0;">' +
+            '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;">' +
+            '<i>جاري تحميل التعليقات...</i>' +
+            '</div>' +
             '</div>';
 
           var marker = L.marker([data.latitude, data.longitude]).addTo(map);
           marker.bindPopup(popupContent);
+
+          // نجلب التعليقات لكل رسالة ونضيفها داخل البوب أب بعد فتحه
+          marker.on('popupopen', function() {
+            var container = document.getElementById('comments-' + docId);
+            if(container) {
+              container.innerHTML = '<i>⏳ جاري التحميل...</i>';
+              db.collection("messages").doc(docId).collection("comments")
+                .orderBy("createdAt", "desc").limit(5).get()
+                .then(function(commentSnap) {
+                  var html = "";
+                  if(commentSnap.empty) {
+                    html = '<i style="color:#888;">لا توجد تعليقات</i>';
+                  } else {
+                    commentSnap.forEach(function(cDoc) {
+                      var cData = cDoc.data();
+                      html += '<div class="comment-box">' +
+                              '<b>' + (cData.username || 'مجهول') + '</b>: ' + cData.text +
+                              ' <small style="color:#999;">' + (cData.createdAt?.toDate?.()?.toLocaleDateString() || '') + '</small>' +
+                              '</div>';
+                    });
+                  }
+                  container.innerHTML = html;
+                }).catch(function(err) {
+                  container.innerHTML = '<i style="color:red;">خطأ في تحميل التعليقات</i>';
+                });
+            }
+          });
         }
       });
     })
-    .catch(function(err){ console.error('خطأ في تحميل الرسائل:', err); });
+    .catch(function(err){ console.
+      error('خطأ في تحميل الرسائل:', err); });
 }
 </script>
 </body>
