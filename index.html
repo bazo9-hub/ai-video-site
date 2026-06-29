@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bazo</title>
+<title>Bazo - النهائي</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -38,6 +38,32 @@ body {
   color: var(--text);
   transition: background 0.3s, color 0.3s;
 }
+
+/* ===== أنيميشن ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  80% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.marker-animate {
+  animation: popIn 0.4s ease forwards;
+}
+.popup-animate .leaflet-popup-content-wrapper {
+  animation: fadeInUp 0.3s ease forwards;
+}
+.like-btn:active, .comment-btn:active, .delete-btn:active {
+  animation: pulse 0.2s ease;
+}
+
+/* ===== التنسيق ===== */
 #loginBox { padding: 50px 20px; text-align: center; }
 #appBox { display: none; height: 100vh; }
 #mapPage { height: 100vh; display: block; }
@@ -154,16 +180,6 @@ button:hover { opacity: 0.85; }
   background: var(--input-bg);
   color: var(--input-text);
 }
-.profile-field .social-link {
-  display: inline-block;
-  margin: 3px 5px;
-  padding: 5px 10px;
-  background: #333;
-  border-radius: 5px;
-  color: white;
-  text-decoration: none;
-  font-size: 13px;
-}
 .theme-toggle {
   background: transparent;
   border: none;
@@ -171,6 +187,7 @@ button:hover { opacity: 0.85; }
   cursor: pointer;
   padding: 5px 10px;
 }
+
 /* ===== تحسينات الجوال ===== */
 @media (max-width: 600px) {
   #topBar { flex-direction: column; align-items: stretch; text-align: center; }
@@ -289,7 +306,6 @@ window.toggleTheme = function() {
     localStorage.setItem('theme', 'dark');
   }
 };
-// تحميل الوضع المحفوظ
 (function() {
   var theme = localStorage.getItem('theme');
   if(theme === 'light') {
@@ -448,7 +464,9 @@ function startMap(user){
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', noWrap: true, minZoom: 1, maxZoom: 18 }).addTo(map);
   navigator.geolocation.getCurrentPosition(function(pos){
     map.setView([pos.coords.latitude, pos.coords.longitude], 13);
-    L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map).bindPopup('📍 أنت هنا');
+    var marker = L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map);
+    marker.bindPopup('📍 أنت هنا');
+    if(marker._icon) marker._icon.classList.add('marker-animate');
   }, function(){});
   map.on('click', function(e){
     var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
@@ -474,7 +492,9 @@ function loadMessages(){
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', noWrap: true, minZoom: 1, maxZoom: 18 }).addTo(map);
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(pos){
-      L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map).bindPopup('📍 أنت هنا');
+      var marker = L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map);
+      marker.bindPopup('📍 أنت هنا');
+      if(marker._icon) marker._icon.classList.add('marker-animate');
     }, function(){});
   }
   db.collection("messages").get().then(function(snapshot){
@@ -496,6 +516,7 @@ function loadMessages(){
           '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
           '</div>';
         var marker = L.marker([data.latitude, data.longitude]).addTo(map);
+        if(marker._icon) marker._icon.classList.add('marker-animate');
         marker.bindPopup(popupContent);
         marker.on('popupopen', function() {
           var container = document.getElementById('comments-' + docId);
