@@ -1,39 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazo - الملف الشخصي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bazo</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-body{margin:0;font-family:Arial;background:#1a1a2e;color:white;text-align:center}
-#loginBox{padding:50px}
-#appBox{display:none;height:100vh}
-#mapPage{height:100vh;display:block}
-#profilePage{display:none;padding:20px;text-align:left;max-width:600px;margin:auto;height:90vh;overflow-y:auto}
-#map{height:90vh;width:100%}
-input,button,textarea{padding:10px 20px;margin:5px;border-radius:8px;border:none;font-family:Arial}
-textarea{width:100%;max-width:400px;height:60px;resize:vertical}
-button{background:#4CAF50;color:white;cursor:pointer;font-size:14px}
-button:hover{opacity:0.8}
-#topBar{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;align-items:center;text-align:left;flex-wrap:wrap}
-#topBar button{margin:2px}
-.action-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:0 5px}
-.like-btn{color:#ff4757}
-.comment-btn{color:#1e90ff}
-.delete-btn{color:#ff6348}
-.popup-text{font-size:14px;line-height:1.8;text-align:center;min-width:200px;max-width:280px}
-.likes-count{color:#ff4757;font-weight:bold}
-.comment-box{background:#f0f0f0;color:#333;padding:5px 10px;border-radius:5px;margin:5px 0;font-size:13px;text-align:left}
-.profile-item{background:#2d2d44;padding:10px;margin:8px 0;border-radius:8px;border-left:4px solid #4CAF50}
-.profile-item small{color:#aaa}
-.back-btn{background:#555}
-.profile-avatar{width:80px;height:80px;border-radius:50%;border:3px solid #4CAF50;object-fit:cover;display:block;margin:0 auto 10px}
-.profile-field{background:#2d2d44;padding:12px;border-radius:8px;margin:10px 0}
-.profile-field label{display:block;font-weight:bold;color:#aaa;font-size:12px;margin-bottom:3px}
-.profile-field input,.profile-field textarea{width:100%;max-width:300px;padding:8px;border-radius:5px;border:1px solid #555;background:#1a1a2e;color:white}
-.profile-field .social-link{display:inline-block;margin:3px 5px;padding:5px 10px;background:#333;border-radius:5px;color:white;text-decoration:none;font-size:13px}
+/* ===== الأساسيات ===== */
+* { box-sizing: border-box; }
+:root {
+  --bg: #1a1a2e;
+  --bg2: #2d2d44;
+  --text: white;
+  --text2: #ddd;
+  --border: #444;
+  --card: #252540;
+  --shadow: rgba(0,0,0,0.5);
+  --input-bg: #1a1a2e;
+  --input-text: white;
+}
+body.light {
+  --bg: #f0f2f5;
+  --bg2: #ffffff;
+  --text: #1a1a2e;
+  --text2: #333;
+  --border: #ccc;
+  --card: #ffffff;
+  --shadow: rgba(0,0,0,0.1);
+  --input-bg: #fff;
+  --input-text: #333;
+}
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+#loginBox { padding: 50px 20px; text-align: center; }
+#appBox { display: none; height: 100vh; }
+#mapPage { height: 100vh; display: block; }
+#profilePage {
+  display: none;
+  padding: 20px 15px;
+  text-align: left;
+  max-width: 600px;
+  margin: auto;
+  height: 90vh;
+  overflow-y: auto;
+}
+#map { height: 90vh; width: 100%; }
+input, button, textarea {
+  padding: 12px 20px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+input, textarea {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 350px;
+}
+textarea { height: 60px; resize: vertical; }
+button {
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+button:hover { opacity: 0.85; }
+#topBar {
+  background: var(--bg2);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+#topBar button { margin: 2px; padding: 8px 14px; font-size: 13px; }
+.action-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+.like-btn { color: #ff4757; }
+.comment-btn { color: #1e90ff; }
+.delete-btn { color: #ff6348; }
+.popup-text {
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+  min-width: 200px;
+  max-width: 280px;
+  color: #333;
+}
+.likes-count { color: #ff4757; font-weight: bold; }
+.comment-box {
+  background: #f0f0f0;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin: 5px 0;
+  font-size: 13px;
+  text-align: left;
+}
+.profile-item {
+  background: var(--bg2);
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+.profile-item small { color: var(--text2); }
+.back-btn { background: #555; }
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #4CAF50;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 10px;
+}
+.profile-field {
+  background: var(--bg2);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+.profile-field label {
+  display: block;
+  font-weight: bold;
+  color: var(--text2);
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+.profile-field .social-link {
+  display: inline-block;
+  margin: 3px 5px;
+  padding: 5px 10px;
+  background: #333;
+  border-radius: 5px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+}
+.theme-toggle {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+/* ===== تحسينات الجوال ===== */
+@media (max-width: 600px) {
+  #topBar { flex-direction: column; align-items: stretch; text-align: center; }
+  #topBar h2 { margin: 5px 0; }
+  #topBar div { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+  .popup-text { min-width: 150px; max-width: 220px; font-size: 13px; }
+  input, button { font-size: 16px; padding: 14px 20px; }
+  #profilePage { padding: 15px; }
+}
 </style>
 </head>
 <body>
@@ -53,6 +199,7 @@ button:hover{opacity:0.8}
   <div id="topBar">
     <h2>🌍 Bazo</h2>
     <div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
       <button onclick="showProfile()">👤 حسابي</button>
       <button onclick="logout()">تسجيل خروج</button>
     </div>
@@ -63,37 +210,29 @@ button:hover{opacity:0.8}
   <div id="profilePage">
     <button onclick="goToMap()" class="back-btn">🔙 رجوع للخريطة</button>
     <h2>👤 الملف الشخصي</h2>
-    
-    <!-- الصورة -->
     <img id="profileAvatar" class="profile-avatar" src="https://ui-avatars.com/api/?name=مستخدم&background=4CAF50&color=fff&size=80" alt="صورة">
-    
     <div class="profile-field">
       <label>اسم المستخدم</label>
       <input id="profileUsername" placeholder="اكتب اسمك">
     </div>
-    
     <div class="profile-field">
       <label>نبذة عنك</label>
       <textarea id="profileBio" placeholder="اكتب نبذة عنك..."></textarea>
     </div>
-    
     <div class="profile-field">
       <label>العمر</label>
       <input id="profileAge" type="number" placeholder="مثلاً: 25">
     </div>
-    
     <div class="profile-field">
       <label>المدينة/الدولة</label>
       <input id="profileLocation" placeholder="مثلاً: دبي، الإمارات">
     </div>
-    
     <div class="profile-field">
-      <label>روابط حساباتك (فيسبوك، تويتر، إنستغرام...)</label>
-      <input id="profileSocial" placeholder="رابط فيسبوك, رابط تويتر, رابط إنستغرام (بينهم فاصلة)">
+      <label>روابط حساباتك</label>
+      <input id="profileSocial" placeholder="فيسبوك, تويتر, إنستغرام (بينهم فاصلة)">
     </div>
-    <button onclick="saveProfile()" style="background:#2196F3;">💾 حفظ الملف الشخصي</button>
+    <button onclick="saveProfile()" style="background:#2196F3;">💾 حفظ</button>
     <button onclick="resetProfile()" style="background:#f44336;">🔄 إعادة تعيين</button>
-    
     <hr>
     <h3>📝 رسائلي</h3>
     <div id="profileMessages"></div>
@@ -138,12 +277,32 @@ window.login = function(){
 };
 window.logout = function(){ auth.signOut(); };
 
+// ===== تبديل الوضع الليلي =====
+window.toggleTheme = function() {
+  document.body.classList.toggle('light');
+  var btn = document.getElementById('themeBtn');
+  if(document.body.classList.contains('light')) {
+    btn.textContent = '☀️';
+    localStorage.setItem('theme', 'light');
+  } else {
+    btn.textContent = '🌙';
+    localStorage.setItem('theme', 'dark');
+  }
+};
+// تحميل الوضع المحفوظ
+(function() {
+  var theme = localStorage.getItem('theme');
+  if(theme === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+})();
+
 auth.onAuthStateChanged(function(user){
   currentUser = user;
   if(user){
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("appBox").style.display = "block";
-    // تحميل بيانات المستخدم من Firestore
     loadUserProfile();
     startMap(user);
   } else {
@@ -163,7 +322,7 @@ window.showProfile = function() {
   loadProfile();
 };
 
-// ===== تحميل بيانات المستخدم من Firestore =====
+// ===== تحميل بيانات المستخدم =====
 function loadUserProfile() {
   if(!currentUser) return;
   db.collection("users").doc(currentUser.uid).get().then(function(doc) {
@@ -174,46 +333,34 @@ function loadUserProfile() {
       document.getElementById("profileAge").value = data.age || '';
       document.getElementById("profileLocation").value = data.location || '';
       document.getElementById("profileSocial").value = data.socialLinks || '';
-      if(data.avatar) {
-        document.getElementById("profileAvatar").src = data.avatar;
-      }
+      if(data.avatar) { document.getElementById("profileAvatar").src = data.avatar; }
     } else {
-      // المستخدم جديد، نضع قيم افتراضية
       document.getElementById("profileUsername").value = currentUser.email.split('@')[0] || 'مستخدم';
     }
   }).catch(function(err){ console.error(err); });
 }
 
-// ===== حفظ الملف الشخصي =====
 window.saveProfile = function() {
   if(!currentUser) return;
   var username = document.getElementById("profileUsername").value.trim();
-  var bio = document.getElementById("profileBio").value.trim();
-  var age = document.getElementById("profileAge").value;
-  var location = document.getElementById("profileLocation").value.trim();
-  var socialLinks = document.getElementById("profileSocial").value.trim();
-  var avatar = document.getElementById("profileAvatar").src;
   if(!username) { alert("يرجى كتابة اسم المستخدم"); return; }
-
   db.collection("users").doc(currentUser.uid).set({
     username: username,
-    bio: bio,
-    age: age,
-    location: location,
-    socialLinks: socialLinks,
-    avatar: avatar,
+    bio: document.getElementById("profileBio").value.trim(),
+    age: document.getElementById("profileAge").value,
+    location: document.getElementById("profileLocation").value.trim(),
+    socialLinks: document.getElementById("profileSocial").value.trim(),
+    avatar: document.getElementById("profileAvatar").src,
     email: currentUser.email,
     updatedAt: new Date()
   }, { merge: true }).then(function() {
-    alert("✅ تم حفظ الملف الشخصي!");
-    // تحديث الرسائل على الخريطة (لأن اسم المستخدم تغير)
+    alert("✅ تم الحفظ!");
     loadMessages();
-  }).catch(function(err){ alert("❌ فشل الحفظ: " + err.message); });
+  }).catch(function(err){ alert("❌ فشل: " + err.message); });
 };
 
-// ===== إعادة تعيين الملف الشخصي =====
 window.resetProfile = function() {
-  if(!confirm("هل أنت متأكد من إعادة تعيين الملف الشخصي؟")) return;
+  if(!confirm("هل أنت متأكد؟")) return;
   db.collection("users").doc(currentUser.uid).delete().then(function() {
     document.getElementById("profileUsername").value = '';
     document.getElementById("profileBio").value = '';
@@ -225,21 +372,16 @@ window.resetProfile = function() {
   }).catch(function(err){ alert("❌ فشل: " + err.message); });
 };
 
-// ===== عرض الملف الشخصي (صفحة الحساب) =====
 function loadProfile() {
   if(!currentUser) return;
-  // نعرض بيانات المستخدم من Firestore
   db.collection("users").doc(currentUser.uid).get().then(function(doc) {
     if(doc.exists) {
       var data = doc.data();
-      document.getElementById("profileEmail").innerHTML = '<strong>البريد:</strong> ' + currentUser.email;
-      // نعرض اسم المستخدم في الأعلى
       var username = data.username || currentUser.email.split('@')[0];
       document.querySelector('#profilePage h2').innerHTML = '👤 ' + username;
     }
   }).catch(function(err){ console.error(err); });
 
-  // عرض رسائل المستخدم
   db.collection("messages").where("uid", "==", currentUser.uid).get()
     .then(function(snapshot) {
       var count = 0, totalLikes = 0, html = "";
@@ -255,15 +397,12 @@ function loadProfile() {
     }).catch(function(err){ console.error(err); });
 }
 
-// ===== دوال التفاعل (معدلة لجلب اسم المستخدم من Firestore) =====
+// ===== دوال التفاعل =====
 function getUsername(callback) {
   if(!currentUser) { callback('مجهول'); return; }
   db.collection("users").doc(currentUser.uid).get().then(function(doc) {
-    if(doc.exists && doc.data().username) {
-      callback(doc.data().username);
-    } else {
-      callback(currentUser.email.split('@')[0]);
-    }
+    if(doc.exists && doc.data().username) { callback(doc.data().username); }
+    else { callback(currentUser.email.split('@')[0]); }
   }).catch(function(){ callback(currentUser.email.split('@')[0]); });
 }
 
@@ -276,11 +415,9 @@ window.toggleLike = function(docId) {
     var likedBy = data.likedBy || [];
     var index = likedBy.indexOf(currentUser.uid);
     var newLikes = data.likes || 0;
-    if (index > -1) { likedBy.splice(index, 1); newLikes--; } 
+    if (index > -1) { likedBy.splice(index, 1); newLikes--; }
     else { likedBy.push(currentUser.uid); newLikes++; }
-    docRef.update({ likes: newLikes, likedBy: likedBy }).then(function() {
-      loadMessages();
-    }).catch(function(err){ alert("❌ فشل: " + err.message); });
+    docRef.update({ likes: newLikes, likedBy: likedBy }).then(function() { loadMessages(); });
   });
 };
 
@@ -288,10 +425,7 @@ window.deleteMessage = function(docId, authorUid) {
   if (!currentUser) return;
   if (currentUser.uid !== authorUid) { alert("ليس لديك صلاحية"); return; }
   if (!confirm("هل أنت متأكد؟")) return;
-  db.collection("messages").doc(docId).
-    delete()
-    .then(function(){ loadMessages(); })
-    .catch(function(err){ alert("❌ فشل الحذف: " + err.message); });
+  db.collection("messages").doc(docId).delete().then(function(){ loadMessages(); });
 };
 
 window.addComment = function(docId) {
@@ -304,7 +438,7 @@ window.addComment = function(docId) {
       username: username || 'مجهول',
       text: commentText,
       createdAt: new Date()
-    }).then(function(){ loadMessages(); }).catch(function(err){ alert("❌ فشل: " + err.message); });
+    }).then(function(){ loadMessages(); });
   });
 };
 
@@ -319,7 +453,6 @@ function startMap(user){
   map.on('click', function(e){
     var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
     if(!msg) return;
-    // نجلب اسم المستخدم من Firestore
     getUsername(function(username) {
       db.collection("messages").add({
         uid: user.uid,
@@ -330,7 +463,7 @@ function startMap(user){
         createdAt: new Date(),
         likes: 0,
         likedBy: []
-      }).then(function(){ loadMessages(); }).catch(function(err){ alert('❌ فشل الحفظ: ' + err.message); });
+      }).then(function(){ loadMessages(); });
     });
   });
   loadMessages();
@@ -372,8 +505,7 @@ function loadMessages(){
               .orderBy("createdAt", "desc").limit(5).get()
               .then(function(commentSnap) {
                 var html = "";
-                if(commentSnap.
-                   empty) { html = '<i style="color:#888;">لا توجد تعليقات</i>'; } else {
+                if(commentSnap.empty) { html = '<i style="color:#888;">لا توجد تعليقات</i>'; } else {
                   commentSnap.forEach(function(cDoc) {
                     var cData = cDoc.data();
                     html += '<div class="comment-box"><b>' + (cData.username || 'مجهول') + '</b>: ' + cData.text +
@@ -388,15 +520,6 @@ function loadMessages(){
     });
   }).catch(function(err){ console.error(err); });
 }
-
-// ===== إضافة حقول الملف الشخصي في الأعلى =====
-// نضيف حقول إضافية لعرضها في صفحة الملف الشخصي
-document.addEventListener('DOMContentLoaded', function() {
-  // إضافة عناصر إضافية لعرض البيانات في صفحة الملف الشخصي
-  var profilePage = document.getElementById('profilePage');
-  var avatar = document.getElementById('profileAvatar');
-  // نضيف أقسام لعرض المعلومات
-});
 </script>
 </body>
 </html>
