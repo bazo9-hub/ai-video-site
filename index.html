@@ -193,10 +193,10 @@
         var db = firebase.firestore();
         var map, currentUser = null;
 
-        // ===== أيقونات إيموجي (تعمل دائماً) =====
-        var redIcon = L.divIcon({
+        // ===== أيقونات إيموجي =====
+var redIcon = L.divIcon({
     className: 'emoji-pin',
-    html: '💌',
+    html: '💌',   // <--- حط هنا الإيموجي اللي تبي يظهر للرسائل
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
@@ -204,7 +204,7 @@
 
 var blueIcon = L.divIcon({
     className: 'emoji-pin',
-    html: '📍',
+    html: '📍',   // هذا لموقعك
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
