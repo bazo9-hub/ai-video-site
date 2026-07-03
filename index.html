@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bazo – الفخامة النهائية</title>
+    <title>Bazo – النهائي</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        /* ===== الأساسيات ===== */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
         :root { --bg:#0f0f1a; --bg2:#1a1a2e; --bg3:#2d2d44; --text:#eee; --text2:#aaa; --border:#2a2a3a; --primary:#4CAF50; }
         body { background:var(--bg); color:var(--text); transition: background 0.3s, color 0.3s; }
@@ -19,7 +18,6 @@
         #landingPage { display:block; }
         #appBox { display:none; height:100vh; }
 
-        /* ===== الهيدر والهيرو ===== */
         header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:20px 0; border-bottom:1px solid var(--border); }
         .logo { font-size:28px; font-weight:bold; background:linear-gradient(135deg,#4CAF50,#00bcd4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .nav-links a { margin:0 12px; font-size:16px; color:var(--text2); transition:0.3s; text-decoration:none; }
@@ -35,7 +33,6 @@
         .hero-image { flex:1; min-width:280px; text-align:center; }
         .hero-image .map-preview { background:linear-gradient(135deg,#1a3a2a,#0a1a1a); border-radius:20px; padding:40px; min-height:250px; display:flex; align-items:center; justify-content:center; font-size:80px; border:1px solid var(--border); }
 
-        /* ===== المميزات ===== */
         .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:30px; padding:50px 0; }
         .feature-card { background:var(--bg2); padding:25px; border-radius:16px; border:1px solid var(--border); text-align:center; transition:0.3s; }
         .feature-card:hover { transform:translateY(-8px); border-color:var(--primary); }
@@ -43,7 +40,6 @@
         .feature-card h3 { margin-bottom:10px; color:#fff; }
         .feature-card p { color:var(--text2); font-size:14px; }
 
-        /* ===== الفوتر ===== */
         footer { border-top:1px solid var(--border); padding:40px 0 20px; margin-top:40px; }
         .footer-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:30px; margin-bottom:30px; }
         .footer-grid h4 { color:#fff; margin-bottom:15px; font-size:16px; }
@@ -58,7 +54,6 @@
         .copyright span { color:var(--primary); }
         .login-cta { text-align:center; padding:40px 0; }
 
-        /* ===== التطبيق الداخلي ===== */
         #loginBox { padding:50px 20px; text-align:center; }
         #mapPage { height:90vh; display:block; }
         #profilePage { display:none; padding:20px 15px; text-align:left; max-width:600px; margin:auto; height:90vh; overflow-y:auto; }
@@ -83,11 +78,22 @@
         .profile-field label { display:block; font-weight:bold; color:var(--text2); font-size:12px; margin-bottom:3px; }
         .theme-toggle { background:transparent; border:none; font-size:24px; cursor:pointer; padding:5px 10px; }
 
-        /* ===== أنيميشن بسيط ===== */
         @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
         .marker-animate { animation:popIn 0.4s ease forwards; }
 
-        /* ===== استجابة ===== */
+        /* ===== أيقونات SVG ===== */
+        .custom-div-icon {
+            background: transparent !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .leaflet-marker-icon.custom-div-icon {
+            background: transparent !important;
+            border: none !important;
+        }
+
         @media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } .popup-text { min-width:150px; max-width:220px; font-size:13px; } input,button { font-size:16px; padding:14px 20px; } }
     </style>
 </head>
@@ -201,30 +207,30 @@
         var auth = firebase.auth();
         var db = firebase.firestore();
         var map, currentUser = null;
-var map, currentUser = null;
 
-// ===== أيقونات SVG (حل نهائي للنقاط السوداء) =====
-var redIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
-            fill="#ff4757" stroke="white" stroke-width="1.5"/>
-          </svg>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [1, -30]
-});
+        // ===== أيقونات SVG (حل نهائي للنقاط السوداء) =====
+        var redIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+                    fill="#ff4757" stroke="white" stroke-width="1.5"/>
+                  </svg>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [1, -30]
+        });
 
-var blueIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
-            fill="#1e90ff" stroke="white" stroke-width="1.5"/>
-          </svg>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [1, -30]
-);
+        var blueIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+                    fill="#1e90ff" stroke="white" stroke-width="1.5"/>
+                  </svg>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [1, -30]
+        });
+
         // ===== التنقل بين الواجهة والتطبيق =====
         window.showApp = function() {
             document.getElementById('landingPage').style.display = 'none';
@@ -345,9 +351,7 @@ var blueIcon = L.divIcon({
             });
             db.collection("messages").where("uid", "==", currentUser.uid).get()
                 .then(function(snapshot) {
-                    var count = 0,
-                        totalLikes = 0,
-                        html = "";
+                    var count = 0, totalLikes = 0, html = "";
                     snapshot.forEach(function(doc) {
                         var data = doc.data();
                         count++;
@@ -379,9 +383,7 @@ var blueIcon = L.divIcon({
                 var likedBy = data.likedBy || [];
                 var index = likedBy.indexOf(currentUser.uid);
                 var newLikes = data.likes || 0;
-                if (index > -1) { likedBy.splice(index, 1);
-                    newLikes--; } else { likedBy.push(currentUser.uid);
-                    newLikes++; }
+                if (index > -1) { likedBy.splice(index, 1); newLikes--; } else { likedBy.push(currentUser.uid); newLikes++; }
                 docRef.update({ likes: newLikes, likedBy: likedBy }).then(function() { loadMessages(); });
             });
         };
@@ -406,7 +408,7 @@ var blueIcon = L.divIcon({
         };
 
         // =========================================================
-        // ===== دوال الخريطة (الدبوس الافتراضي الشغال) =====
+        // ===== دوال الخريطة (مع الأيقونات المطبقة) =====
         // =========================================================
         function startMap(user) {
             map = L.map('map', {
@@ -414,10 +416,7 @@ var blueIcon = L.divIcon({
                 zoom: 2,
                 minZoom: 1,
                 maxZoom: 18,
-                maxBounds: [
-                    [-85, -180],
-                    [85, 180]
-                ],
+                maxBounds: [[-85, -180], [85, 180]],
                 maxBoundsViscosity: 0.5
             });
 
@@ -428,17 +427,17 @@ var blueIcon = L.divIcon({
                 maxZoom: 18
             }).addTo(map);
 
-            // موقع المستخدم (دبوس افتراضي)
+            // ===== موقع المستخدم (دبوس أزرق) =====
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
                 map.setView([lat, lng], 13);
-                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
             }, function() {
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // الضغط على الخريطة لكتابة رسالة
+            // ===== الضغط على الخريطة لكتابة رسالة (دبوس أحمر) =====
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -458,7 +457,10 @@ var blueIcon = L.divIcon({
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        loadMessages();
+                        // إضافة العلامة الجديدة فوراً (دبوس أحمر)
+                        L.marker([lat, lng], {icon: redIcon}).addTo(map)
+                            .bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
+                        loadMessages(); // تحديث الخريطة
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -469,9 +471,9 @@ var blueIcon = L.divIcon({
             loadMessages();
         }
 
-        // ===== تحميل الرسائل وعرضها بالدبوس الافتراضي =====
+        // ===== تحميل الرسائل وعرضها =====
         function loadMessages() {
-            // تنظيف الخريطة من العلامات القديمة
+            // تنظيف الخريطة من العلامات القديمة (مع الحفاظ على طبقة التايل)
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
@@ -486,14 +488,14 @@ var blueIcon = L.divIcon({
                 maxZoom: 18
             }).addTo(map);
 
-            // إعادة علامة موقع المستخدم
+            // إعادة علامة موقع المستخدم (دبوس أزرق)
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
-                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
             }, function() {});
 
-            // جلب الرسائل من Firestore وعرضها
+            // جلب الرسائل من Firestore وعرضها (دبابيس حمراء)
             db.collection("messages").get()
                 .then(function(snapshot) {
                     snapshot.forEach(function(doc) {
@@ -516,8 +518,8 @@ var blueIcon = L.divIcon({
                                 '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
                                 '</div>';
 
-                            // استخدام الدبوس الافتراضي (بدون تحديد أيقونة)
-                            var marker = L.marker([data.latitude, data.longitude]).addTo(map);
+                            // ===== دبوس أحمر للرسالة =====
+                            var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
                             if (marker._icon) marker._icon.classList.add('marker-animate');
                             marker.bindPopup(popupContent);
 
