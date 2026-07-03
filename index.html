@@ -81,7 +81,6 @@
         @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
         .marker-animate { animation:popIn 0.4s ease forwards; }
 
-        /* ===== أيقونات SVG ===== */
         .custom-div-icon {
             background: transparent !important;
             border: none !important;
@@ -245,6 +244,7 @@
                 .then(function() { document.getElementById("status").innerText = "✅ تم إنشاء الحساب"; })
                 .catch(function(e) { alert(e.message); });
         };
+
         window.login = function() {
             var email = document.getElementById("email").value;
             var password = document.getElementById("password").value;
@@ -252,6 +252,7 @@
                 .then(function() { document.getElementById("status").innerText = "✅ تم تسجيل الدخول"; })
                 .catch(function(e) { alert(e.message); });
         };
+
         window.logout = function() { auth.signOut(); };
 
         // ===== الوضع الليلي =====
@@ -427,7 +428,7 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // ===== موقع المستخدم (دبوس أزرق) =====
+            // موقع المستخدم (دبوس أزرق)
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
@@ -437,7 +438,7 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // ===== الضغط على الخريطة لكتابة رسالة (دبوس أحمر) =====
+            // الضغط على الخريطة لكتابة رسالة (دبوس أحمر)
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -457,10 +458,9 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // إضافة العلامة الجديدة فوراً (دبوس أحمر)
                         L.marker([lat, lng], {icon: redIcon}).addTo(map)
                             .bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
-                        loadMessages(); // تحديث الخريطة
+                        loadMessages();
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -471,16 +471,14 @@
             loadMessages();
         }
 
-        // ===== تحميل الرسائل وعرضها =====
+        // ===== تحميل الرسائل =====
         function loadMessages() {
-            // تنظيف الخريطة من العلامات القديمة (مع الحفاظ على طبقة التايل)
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
                 }
             });
 
-            // إعادة طبقة الخريطة
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
@@ -488,14 +486,12 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // إعادة علامة موقع المستخدم (دبوس أزرق)
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
                 L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
             }, function() {});
 
-            // جلب الرسائل من Firestore وعرضها (دبابيس حمراء)
             db.collection("messages").get()
                 .then(function(snapshot) {
                     snapshot.forEach(function(doc) {
@@ -518,12 +514,10 @@
                                 '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
                                 '</div>';
 
-                            // ===== دبوس أحمر للرسالة =====
                             var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
                             if (marker._icon) marker._icon.classList.add('marker-animate');
                             marker.bindPopup(popupContent);
 
-                            // جلب التعليقات عند فتح البوب أب
                             marker.on('popupopen', function() {
                                 var container = document.getElementById('comments-' + docId);
                                 if (container) {
