@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bazo – المدمج</title>
+    <title>Bazo – النهائي</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -189,20 +189,7 @@
         var db = firebase.firestore();
         var map, currentUser = null;
 
-        // ===== أيقونات SVG مدمجة =====
-        var redIcon = L.icon({
-            iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff4757"%3E%3Cpath d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/%3E%3C/svg%3E',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        });
-
-        var blueIcon = L.icon({
-            iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231e90ff"%3E%3Cpath d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/%3E%3C/svg%3E',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        });
+        // ===== لا نستخدم أيقونات مخصصة، نعتمد على الأيقونة الافتراضية =====
 
         window.showApp = function() {
             document.getElementById('landingPage').style.display = 'none';
@@ -383,7 +370,7 @@
         };
 
         // =========================================================
-        // ===== دوال الخريطة (مع الأيقونات المطبقة) =====
+        // ===== دوال الخريطة (بدون أيقونات مخصصة) =====
         // =========================================================
         function startMap(user){
             map = L.map('map', {
@@ -406,7 +393,7 @@
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
                 map.setView([lat, lng], 13);
-                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
             }, function(){
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
@@ -456,7 +443,7 @@
             navigator.geolocation.getCurrentPosition(function(pos){
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
-                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
             }, function(){});
 
             db.collection("messages").get()
@@ -481,7 +468,8 @@
                                 '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
                                 '</div>';
 
-                            var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
+                            // نستخدم L.marker بدون تحديد أيقونة (ستستخدم الأيقونة الافتراضية)
+                            var marker = L.marker([data.latitude, data.longitude]).addTo(map);
                             marker.bindPopup(popupContent);
                             if(marker._icon) marker._icon.classList.add('marker-animate');
 
