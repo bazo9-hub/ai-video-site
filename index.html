@@ -77,6 +77,10 @@
         @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
         .marker-animate { animation:popIn 0.4s ease forwards; }
         @media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } .popup-text { min-width:150px; max-width:220px; font-size:13px; } input,button { font-size:16px; padding:14px 20px; } }
+
+        /* ===== أيقونات الإيموجي ===== */
+        .emoji-pin { font-size: 32px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+        .leaflet-marker-icon { background: transparent !important; border: none !important; }
     </style>
 </head>
 <body>
@@ -189,7 +193,21 @@
         var db = firebase.firestore();
         var map, currentUser = null;
 
-        // ===== لا نستخدم أيقونات مخصصة، نعتمد على الأيقونة الافتراضية =====
+        // ===== أيقونات إيموجي (تعمل دائماً) =====
+        var redIcon = L.divIcon({
+            className: 'emoji-pin',
+            html: '📍',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [1, -30]
+        });
+        var blueIcon = L.divIcon({
+            className: 'emoji-pin',
+            html: '📍',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [1, -30]
+        });
 
         window.showApp = function() {
             document.getElementById('landingPage').style.display = 'none';
@@ -370,7 +388,7 @@
         };
 
         // =========================================================
-        // ===== دوال الخريطة (بدون أيقونات مخصصة) =====
+        // ===== دوال الخريطة (مع إيموجي) =====
         // =========================================================
         function startMap(user){
             map = L.map('map', {
@@ -393,7 +411,7 @@
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
                 map.setView([lat, lng], 13);
-                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
             }, function(){
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
@@ -443,7 +461,7 @@
             navigator.geolocation.getCurrentPosition(function(pos){
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
-                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
             }, function(){});
 
             db.collection("messages").get()
@@ -468,8 +486,7 @@
                                 '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
                                 '</div>';
 
-                            // نستخدم L.marker بدون تحديد أيقونة (ستستخدم الأيقونة الافتراضية)
-                            var marker = L.marker([data.latitude, data.longitude]).addTo(map);
+                            var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
                             marker.bindPopup(popupContent);
                             if(marker._icon) marker._icon.classList.add('marker-animate');
 
