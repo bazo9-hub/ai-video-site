@@ -417,31 +417,32 @@ var blueIcon = L.divIcon({
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            map.on('click', function(e){
-                var lat = e.latlng.lat;
-                var lng = e.latlng.lng;
-                var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
-                if(!msg) return;
+           map.on('click', function(e) {
+    var lat = e.latlng.lat;   // لاحظ: e.latlng (وليست e.latLng)
+    var lng = e.latlng.lng;
+    var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
+    if (!msg) return;
 
-                getUsername(function(username) {
-                    db.collection("messages").add({
-                        uid: user.uid,
-                        username: username || user.email.split('@')[0],
-                        latitude: lat,
-                        longitude: lng,
-                        message: msg,
-                        createdAt: new Date(),
-                        likes: 0,
-                        likedBy: []
-                    })
-                    .then(function(){
-                        alert('✅ تم حفظ رسالتك!');
-                        loadMessages();
-                    })
-                    .catch(function(err){ alert('❌ فشل الحفظ: ' + err.message); });
-                });
-            });
-
+    getUsername(function(username) {
+        db.collection("messages").add({
+            uid: currentUser.uid,       // استخدم currentUser بدلاً من user
+            username: username || currentUser.email.split('@')[0],
+            latitude: lat,
+            longitude: lng,
+            message: msg,
+            createdAt: new Date(),
+            likes: 0,
+            likedBy: []
+        })
+        .then(function() {
+            alert('✅ تم حفظ رسالتك!');
+            loadMessages();   // تحديث الخريطة لإظهار العلامة الجديدة
+        })
+        .catch(function(err) {
+            alert('❌ فشل الحفظ: ' + err.message);
+        });
+    });
+});
             loadMessages();
         }
 
