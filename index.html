@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        /* ===== الأساسيات ===== */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
         :root { --bg:#0f0f1a; --bg2:#1a1a2e; --bg3:#2d2d44; --text:#eee; --text2:#aaa; --border:#2a2a3a; --primary:#4CAF50; }
         body { background:var(--bg); color:var(--text); }
@@ -77,24 +76,17 @@
         @keyframes fadeInUp { from{opacity:0;transform:scale(0.8) translateY(20px);} to{opacity:1;transform:scale(1) translateY(0);} }
         @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
         .marker-animate { animation:popIn 0.4s ease forwards; }
-        /* ===== أيقونات divIcon ===== */
-        .custom-pin {
-            background: transparent !important;
-            border: none !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        .leaflet-marker-icon.custom-pin {
-            background: transparent !important;
-            border: none !important;
-        }
+
+        /* ===== أيقونات الإيموجي ===== */
+        .red-pin { font-size: 32px; color: #ff4757; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); line-height: 1; }
+        .blue-pin { font-size: 32px; color: #1e90ff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); line-height: 1; }
+        .leaflet-marker-icon { background: transparent !important; border: none !important; }
+
         @media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } .popup-text { min-width:150px; max-width:220px; font-size:13px; } input,button { font-size:16px; padding:14px 20px; } }
     </style>
 </head>
 <body>
 
-    <!-- ===== الواجهة الفخمة ===== -->
     <div id="landingPage">
         <div class="container">
             <header>
@@ -150,7 +142,6 @@
         </div>
     </div>
 
-    <!-- ===== التطبيق الداخلي ===== -->
     <div id="appBox">
         <div id="topBar">
             <h2>🌍 Bazo</h2>
@@ -202,17 +193,17 @@
         var db = firebase.firestore();
         var map, currentUser = null;
 
-        // ===== الحل النهائي: أيقونات SVG عبر divIcon =====
+        // ===== أيقونات الإيموجي (تظهر دائماً) =====
         var redIcon = L.divIcon({
-            className: 'custom-pin',
-            html: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ff4757" stroke="white" stroke-width="1.5"/></svg>',
+            className: 'red-pin',
+            html: '📍',
             iconSize: [32, 32],
             iconAnchor: [16, 32],
             popupAnchor: [1, -30]
         });
         var blueIcon = L.divIcon({
-            className: 'custom-pin',
-            html: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#1e90ff" stroke="white" stroke-width="1.5"/></svg>',
+            className: 'blue-pin',
+            html: '📍',
             iconSize: [32, 32],
             iconAnchor: [16, 32],
             popupAnchor: [1, -30]
@@ -400,12 +391,15 @@
             if(map) { map.remove(); }
             map = L.map('map', { center: [20,0], zoom:2, minZoom:1, maxZoom:18, maxBounds:[[-85,-180],[85,180]], maxBoundsViscosity:0.5 });
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', noWrap:true, minZoom:1, maxZoom:18 }).addTo(map);
+            
+            // موقع المستخدم
             navigator.geolocation.getCurrentPosition(function(pos){
                 map.setView([pos.coords.latitude, pos.coords.longitude], 13);
                 var marker = L.marker([pos.coords.latitude, pos.coords.longitude], {icon: blueIcon}).addTo(map);
                 marker.bindPopup('📍 أنت هنا');
                 if(marker._icon) marker._icon.classList.add('marker-animate');
             }, function(){});
+
             map.on('click', function(e){
                 var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
                 if(!msg) return;
@@ -427,8 +421,23 @@
 
         function loadMessages(){
             if(!map) return;
-            map.eachLayer(function(layer){ if(!!layer.getPopup || !!layer._popup){ map.removeLayer(layer); } });
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', noWrap:true, minZoom:1, maxZoom:18 }).addTo(map);
+            
+            // تنظيف العلامات القديمة (مع الاحتفاظ بطبقة الخريطة الأساسية)
+            map.eachLayer(function(layer){
+                if(!!layer.getPopup || !!layer._popup){
+                    map.removeLayer(layer);
+                }
+            });
+
+            // نعيد طبقة التايل (لأنها قد تحذف مع العلامات)
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                attribution:'© OpenStreetMap', 
+                noWrap:true, 
+                minZoom:1, 
+                maxZoom:18 
+            }).addTo(map);
+
+            // نعيد علامة "أنت هنا" إذا كان الموقع متاحاً
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(pos){
                     var marker = L.marker([pos.coords.latitude, pos.coords.longitude], {icon: blueIcon}).addTo(map);
@@ -436,6 +445,8 @@
                     if(marker._icon) marker._icon.classList.add('marker-animate');
                 }, function(){});
             }
+
+            // جلب الرسائل وعرضها
             db.collection("messages").get().then(function(snapshot){
                 snapshot.forEach(function(doc){
                     var data = doc.data(), docId = doc.id;
@@ -454,9 +465,11 @@
                             '<hr style="margin:5px 0;">' +
                             '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
                             '</div>';
+                        
                         var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
                         if(marker._icon) marker._icon.classList.add('marker-animate');
                         marker.bindPopup(popupContent);
+                        
                         marker.on('popupopen', function() {
                             var container = document.getElementById('comments-' + docId);
                             if(container) {
