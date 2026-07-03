@@ -1,42 +1,27 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazo – بسيط</title>
+    <title>Bazo</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
-        body { background:#0f0f1a; color:#eee; }
-        #loginBox { padding:50px; text-align:center; }
+        body { margin:0; font-family:Arial; background:#1a1a2e; color:white; text-align:center; }
+        #loginBox { padding:50px; }
         #appBox { display:none; height:100vh; }
         #map { height:90vh; width:100%; }
         input, button { padding:10px 20px; margin:5px; border-radius:8px; border:none; }
         button { background:#4CAF50; color:white; cursor:pointer; }
-        #topBar { background:#1a1a2e; padding:10px; display:flex; justify-content:space-between; align-items:center; }
-        .popup-text { font-size:14px; line-height:1.8; text-align:center; min-width:200px; color:#333; }
-        .likes-count { color:#ff4757; font-weight:bold; }
-        .action-btn { background:transparent; border:none; font-size:18px; cursor:pointer; padding:0 5px; }
-        .like-btn { color:#ff4757; }
-        .comment-btn { color:#1e90ff; }
-        .delete-btn { color:#ff6348; }
-        .comment-box { background:#f0f0f0; color:#333; padding:5px 10px; border-radius:5px; margin:5px 0; font-size:13px; text-align:left; }
-        .custom-div-icon { background:transparent !important; border:none !important; display:flex !important; align-items:center !important; justify-content:center !important; }
-        .leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
-        @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
-        .marker-animate { animation:popIn 0.4s ease forwards; }
+        #topBar { background:#0f0f0f; padding:10px; display:flex; justify-content:space-between; align-items:center; }
     </style>
 </head>
 <body>
 
     <div id="loginBox">
         <h1>🔐 Bazo</h1>
-        <input id="email" placeholder="البريد الإلكتروني"><br>
-        <input id="password" type="password" placeholder="كلمة المرور"><br>
+        <input id="email" placeholder="Email"><br>
+        <input id="password" type="password" placeholder="كلمة السر"><br>
         <button onclick="signup()">إنشاء حساب</button>
         <button onclick="login()">تسجيل دخول</button>
         <p id="status"></p>
@@ -50,8 +35,11 @@
         <div id="map"></div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <script>
-        // ===== إعدادات Firebase =====
         var firebaseConfig = {
             apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
             authDomain: "bazo-a36fe.firebaseapp.com",
@@ -67,23 +55,6 @@
         var db = firebase.firestore();
         var map, currentUser = null;
 
-        // ===== أيقونات SVG =====
-        var redIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ff4757" stroke="white" stroke-width="1.5"/></svg>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [1, -30]
-        });
-        var blueIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#1e90ff" stroke="white" stroke-width="1.5"/></svg>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [1, -30]
-        });
-
-        // ===== دوال الحساب =====
         window.signup = function() {
             var email = document.getElementById("email").value;
             var password = document.getElementById("password").value;
@@ -100,7 +71,6 @@
         };
         window.logout = function() { auth.signOut(); };
 
-        // ===== مراقبة المستخدم =====
         auth.onAuthStateChanged(function(user) {
             currentUser = user;
             if (user) {
@@ -113,43 +83,7 @@
             }
         });
 
-        // ===== دوال الإعجابات والتعليقات =====
-        window.toggleLike = function(docId) {
-            if (!currentUser) { alert("يجب تسجيل الدخول"); return; }
-            var docRef = db.collection("messages").doc(docId);
-            docRef.get().then(function(doc) {
-                if (!doc.exists) return;
-                var data = doc.data();
-                var likedBy = data.likedBy || [];
-                var index = likedBy.indexOf(currentUser.uid);
-                var newLikes = data.likes || 0;
-                if (index > -1) { likedBy.splice(index, 1); newLikes--; } else { likedBy.push(currentUser.uid); newLikes++; }
-                docRef.update({ likes: newLikes, likedBy: likedBy }).then(function() { loadMessages(); });
-            });
-        };
-        window.deleteMessage = function(docId, authorUid) {
-            if (!currentUser) return;
-            if (currentUser.uid !== authorUid) { alert("ليس لديك صلاحية"); return; }
-            if (!confirm("هل أنت متأكد؟")) return;
-            db.collection("messages").doc(docId).delete().then(function() { loadMessages(); });
-        };
-        window.addComment = function(docId) {
-            if (!currentUser) { alert("يجب تسجيل الدخول"); return; }
-            var commentText = prompt("💬 اكتب تعليقك:");
-            if (!commentText) return;
-            db.collection("messages").doc(docId).collection("comments").add({
-                uid: currentUser.uid,
-                username: currentUser.email || 'مجهول',
-                text: commentText,
-                createdAt: new Date()
-            }).then(function() { loadMessages(); });
-        };
-
-        // ===== الخريطة (أبسط طريقة ممكنة) =====
         function startMap(user) {
-            // حذف الخريطة القديمة إذا وجدت
-            if (map) { map.remove(); }
-
             map = L.map('map', {
                 center: [20, 0],
                 zoom: 2,
@@ -166,17 +100,15 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // موقع المستخدم (دبوس أزرق)
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
                 map.setView([lat, lng], 13);
-                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
             }, function() {
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // الضغط على الخريطة
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -189,13 +121,11 @@
                     latitude: lat,
                     longitude: lng,
                     message: msg,
-                    createdAt: new Date(),
-                    likes: 0,
-                    likedBy: []
+                    createdAt: new Date()
                 })
                 .then(function() {
                     alert('✅ تم حفظ رسالتك!');
-                    loadMessages(); // تحديث الخريطة
+                    loadMessages();
                 })
                 .catch(function(err) {
                     alert('❌ فشل الحفظ: ' + err.message);
@@ -205,16 +135,13 @@
             loadMessages();
         }
 
-        // ===== تحميل الرسائل (أبسط طريقة) =====
         function loadMessages() {
-            // تنظيف الخريطة من العلامات القديمة فقط
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
                 }
             });
 
-            // إعادة طبقة الخريطة
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
@@ -222,62 +149,23 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // إعادة علامة الموقع الأزرق
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
-                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
+                L.marker([lat, lng]).addTo(map).bindPopup('📍 أنت هنا');
             }, function() {});
 
-            // جلب وعرض الرسائل
             db.collection("messages").get()
                 .then(function(snapshot) {
                     snapshot.forEach(function(doc) {
                         var data = doc.data();
-                        var docId = doc.id;
-
-                        if (data.latitude && data.longitude &&
-                            data.latitude !== 0 && data.longitude !== 0) {
-
-                            var likes = data.likes || 0;
-                            var isOwner = (currentUser && currentUser.uid === data.uid);
-
-                            var popupContent =
-                                '<div class="popup-text">' +
-                                '<b>' + (data.username || 'مجهول') + '</b><br>' +
-                                data.message + '<br>' +
-                                '<span class="likes-count">❤️ ' + likes + '</span>' +
-                                ' <button class="action-btn like-btn" onclick="toggleLike(\'' + docId + '\')">👍</button>' +
-                                ' <button class="action-btn comment-btn" onclick="addComment(\'' + docId + '\')">💬</button>' +
-                                (isOwner ? ' <button class="action-btn delete-btn" onclick="deleteMessage(\'' + docId + '\', \'' + data.uid + '\')">🗑️</button>' : '') +
-                                '<br><small>' + (data.createdAt?.toDate?.()?.toLocaleDateString('ar-EG') || '') + '</small>' +
-                                '<hr style="margin:5px 0;">' +
-                                '<div id="comments-' + docId + '" style="text-align:left;font-size:13px;max-height:100px;overflow-y:auto;"><i>⏳ جاري التحميل...</i></div>' +
-                                '</div>';
-
-                            var marker = L.marker([data.latitude, data.longitude], { icon: redIcon }).addTo(map);
-                            if (marker._icon) marker._icon.classList.add('marker-animate');
-                            marker.bindPopup(popupContent);
-
-                            marker.on('popupopen', function() {
-                                var container = document.getElementById('comments-' + docId);
-                                if (container) {
-                                    container.innerHTML = '<i>⏳ جاري التحميل...</i>';
-                                    db.collection("messages").doc(docId).collection("comments")
-                                        .orderBy("createdAt", "desc").limit(5).get()
-                                        .then(function(commentSnap) {
-                                            var html = "";
-                                            if (commentSnap.empty) { html = '<i style="color:#888;">لا توجد تعليقات</i>'; } else {
-                                                commentSnap.forEach(function(cDoc) {
-                                                    var cData = cDoc.data();
-                                                    html += '<div class="comment-box"><b>' + (cData.username || 'مجهول') + '</b>: ' + cData.text +
-                                                        ' <small style="color:#999;">' + (cData.createdAt?.toDate?.()?.toLocaleDateString('ar-EG') || '') + '</small></div>';
-                                                });
-                                            }
-                                            container.innerHTML = html;
-                                        });
-                                }
-                            });
+                        if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
+                            var marker = L.marker([data.latitude, data.longitude]).addTo(map);
+                            var text = "<b>" + (data.username || 'مجهول') + "</b><br>" + data.message;
+                            if (data.createdAt && data.createdAt.toDate) {
+                                text += "<br><small>" + data.createdAt.toDate().toLocaleDateString() + "</small>";
+                            }
+                            marker.bindPopup(text);
                         }
                     });
                 })
