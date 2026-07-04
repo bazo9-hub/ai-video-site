@@ -1,4 +1,3 @@
-
 // ===== مراقبة حالة المستخدم =====
 auth.onAuthStateChanged(function(user) {
     currentUser = user;
