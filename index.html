@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazo – النهائي</title>
+    <title>Bazo – الحل النهائي</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        /* ===== كل الأنماط السابقة (نفسها) ===== */
+        /* كل الأنماط السابقة (نفسها) */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
         body { background:#0f0f1a; color:#eee; }
         .container { max-width:1100px; margin:auto; padding:20px; }
@@ -74,6 +74,32 @@
         .marker-animate { animation:popIn 0.4s ease forwards; }
         .custom-div-icon { background:transparent !important; border:none !important; display:flex !important; align-items:center !important; justify-content:center !important; }
         .leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
+
+        /* زر إضافة رسالة */
+        .add-message-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .add-message-btn:hover {
+            transform: scale(1.1);
+            background: #388E3C;
+        }
+
         @media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } .popup-text { min-width:150px; max-width:220px; font-size:13px; } input,button { font-size:16px; padding:14px 20px; } }
     </style>
 </head>
@@ -152,7 +178,11 @@
             <button onclick="login()">تسجيل دخول</button>
             <p id="status"></p>
         </div>
-        <div id="mapPage"><div id="map"></div></div>
+        <div id="mapPage">
+            <div id="map"></div>
+            <!-- زر إضافة رسالة (يظهر فوق الخريطة) -->
+            <button class="add-message-btn" id="addMessageBtn" title="إضافة رسالة جديدة">➕</button>
+        </div>
         <div id="profilePage">
             <button onclick="goToMap()" class="back-btn">🔙 رجوع للخريطة</button>
             <h2>👤 الملف الشخصي</h2>
@@ -191,6 +221,7 @@
 
         // ===== 2. متغيرات وأيقونات =====
         var map, currentUser = null;
+        var isAddingMode = false; // وضع إضافة رسالة
 
         var redIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -370,9 +401,9 @@
             });
         };
 
-        // ===== 7. دوال الخريطة =====
+        // ===== 7. دوال الخريطة (مع زر إضافة رسالة) =====
         function startMap(user) {
-            if (map) { map.remove(); } // إزالة الخريطة القديمة إن وجدت
+            if (map) { map.remove(); }
             map = L.map('map', {
                 center: [20, 0],
                 zoom: 2,
@@ -399,12 +430,39 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // الضغط على الخريطة لكتابة رسالة
+            // ===== زر إضافة رسالة =====
+            document.getElementById('addMessageBtn').addEventListener('click', function() {
+                // تفعيل وضع إضافة رسالة
+                isAddingMode = !isAddingMode;
+                if (isAddingMode) {
+                    this.style.background = '#ff4757';
+                    this.textContent = '✖️';
+                    this.title = 'إلغاء وضع الإضافة';
+                    map.getContainer().style.cursor = 'crosshair';
+                    alert('📍 اضغط على أي مكان في الخريطة لإضافة رسالة، أو اضغط على الزر مرَّة أخرى للإلغاء.');
+                } else {
+                    this.style.background = '#4CAF50';
+                    this.textContent = '➕';
+                    this.title = 'إضافة رسالة جديدة';
+                    map.getContainer().style.cursor = '';
+                }
+            });
+
+            // ===== الضغط على الخريطة لكتابة رسالة (فقط في وضع الإضافة) =====
             map.on('click', function(e) {
+                if (!isAddingMode) return; // إذا لم يكن في وضع الإضافة، لا تفعل شيئاً
+                
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
                 var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
-                if (!msg) return;
+                if (!msg) {
+                    // إلغاء وضع الإضافة إذا ألغى المستخدم الكتابة
+                    isAddingMode = false;
+                    document.getElementById('addMessageBtn').style.background = '#4CAF50';
+                    document.getElementById('addMessageBtn').textContent = '➕';
+                    map.getContainer().style.cursor = '';
+                    return;
+                }
 
                 getUsername(function(username) {
                     db.collection("messages").add({
@@ -419,10 +477,14 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // ===== نضيف الدبوس الجديد فقط، بدون إعادة تحميل الخريطة =====
+                        // إضافة الدبوس الجديد
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
                         marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
-                        // لا نستدعي loadMessages() هنا
+                        // إعادة تعيين وضع الإضافة
+                        isAddingMode = false;
+                        document.getElementById('addMessageBtn').style.background = '#4CAF50';
+                        document.getElementById('addMessageBtn').textContent = '➕';
+                        map.getContainer().style.cursor = '';
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -435,14 +497,14 @@
 
         // ===== 8. تحميل الرسائل =====
         function loadMessages() {
-            // إزالة العلامات القديمة فقط (مع الحفاظ على طبقة الخريطة)
+            // إزالة العلامات القديمة فقط
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
                 }
             });
 
-            // إعادة طبقة الخريطة (لأننا أزلناها مع العلامات)
+            // إعادة طبقة الخريطة
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
