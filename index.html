@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        /* ===== كل الأنماط السابقة (نفسها) ===== */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
         body { background:#0f0f1a; color:#eee; }
         .container { max-width:1100px; margin:auto; padding:20px; }
@@ -418,9 +419,10 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
+                        // ===== نضيف الدبوس الجديد فقط، بدون إعادة تحميل الخريطة =====
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
                         marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
-                        loadMessages(); // تحديث الخريطة
+                        // لا نستدعي loadMessages() هنا
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
