@@ -396,13 +396,9 @@
             });
         };
 
-        // ===== 7. دوال الخريطة (مع إصلاح زر +) =====
+        // ===== 7. دوال الخريطة =====
         function startMap(user) {
-            if (map) { 
-                map.remove(); 
-                map = null;
-            }
-            
+            if (map) { map.remove(); }
             map = L.map('map', {
                 center: [20, 0],
                 zoom: 2,
@@ -412,7 +408,6 @@
                 maxBoundsViscosity: 0.5
             });
 
-            // رابط الخريطة المستقر
             L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
@@ -420,7 +415,6 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // موقع المستخدم
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
@@ -430,14 +424,8 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // زر إضافة رسالة (مع ربط الحدث بشكل صحيح)
-            var btn = document.getElementById('addMessageBtn');
-            
-            // إزالة أي حدث قديم مرتبط بالزر (لتجنب التكرار)
-            btn.replaceWith(btn.cloneNode(true));
-            var newBtn = document.getElementById('addMessageBtn');
-            
-            newBtn.addEventListener('click', function() {
+            // زر إضافة رسالة
+            document.getElementById('addMessageBtn').addEventListener('click', function() {
                 isAddingMode = !isAddingMode;
                 if (isAddingMode) {
                     this.style.background = '#ff4757';
@@ -453,23 +441,18 @@
                 }
             });
 
-            // حدث النقر على الخريطة (فقط في وضع الإضافة)
             map.on('click', function(e) {
                 if (!isAddingMode) return;
-                
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
                 var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
                 if (!msg) {
-                    // إلغاء وضع الإضافة إذا ألغى المستخدم
                     isAddingMode = false;
-                    var btn2 = document.getElementById('addMessageBtn');
-                    btn2.style.background = '#4CAF50';
-                    btn2.textContent = '➕';
+                    document.getElementById('addMessageBtn').style.background = '#4CAF50';
+                    document.getElementById('addMessageBtn').textContent = '➕';
                     map.getContainer().style.cursor = '';
                     return;
                 }
-
                 getUsername(function(username) {
                     db.collection("messages").add({
                         uid: currentUser.uid,
@@ -483,17 +466,12 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // إضافة الدبوس الجديد
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
                         marker.bindPopup("<b>" + (username || currentUser.email) + "</b><br>" + msg);
-                        // إعادة تعيين وضع الإضافة
                         isAddingMode = false;
-                        var btn3 = document.getElementById('addMessageBtn');
-                        btn3.style.background = '#4CAF50';
-                        btn3.textContent = '➕';
+                        document.getElementById('addMessageBtn').style.background = '#4CAF50';
+                        document.getElementById('addMessageBtn').textContent = '➕';
                         map.getContainer().style.cursor = '';
-                        // إعادة تحميل الرسائل لتحديث الخريطة (اختياري)
-                        loadMessages();
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -506,8 +484,6 @@
 
         // ===== 8. تحميل الرسائل =====
         function loadMessages() {
-            if (!map) return;
-            
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
