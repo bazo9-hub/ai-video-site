@@ -9,7 +9,8 @@
     <style>
         /* ===== الأساسيات ===== */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
-        body { background:#0f0f1a; color:#eee; }
+        body { background:#0f0f1a; color:#eee; transition: 0.3s; }
+        body.light { background:#f0f2f5; color:#1a1a2e; }
         .container { max-width:1100px; margin:auto; padding:20px; }
         
         /* ===== الواجهة الفخمة ===== */
@@ -53,7 +54,7 @@
         .copyright span { color:#4CAF50; }
         .login-cta { text-align:center; padding:40px 0; }
 
-        /* ===== الخريطة ===== */
+        /* ===== التطبيق ===== */
         #loginBox { padding:50px; text-align:center; }
         #mapPage { height:90vh; display:block; }
         #profilePage { display:none; padding:20px 15px; text-align:left; max-width:600px; margin:auto; height:90vh; overflow-y:auto; }
@@ -63,6 +64,8 @@
         textarea { height:60px; resize:vertical; }
         #topBar { background:#1a1a2e; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
         #topBar button { margin:2px; padding:8px 14px; font-size:13px; }
+        
+        /* ===== التفاعلات ===== */
         .action-btn { background:transparent; border:none; font-size:18px; cursor:pointer; padding:0 5px; }
         .like-btn { color:#ff4757; }
         .comment-btn { color:#1e90ff; }
@@ -70,6 +73,8 @@
         .popup-text { font-size:14px; line-height:1.8; text-align:center; min-width:200px; max-width:280px; color:#333; }
         .likes-count { color:#ff4757; font-weight:bold; }
         .comment-box { background:#f0f0f0; color:#333; padding:5px 10px; border-radius:5px; margin:5px 0; font-size:13px; text-align:left; }
+        
+        /* ===== الملف الشخصي ===== */
         .profile-item { background:#1a1a2e; padding:10px; margin:8px 0; border-radius:8px; border-left:4px solid #4CAF50; }
         .profile-item small { color:#aaa; }
         .back-btn { background:#555; }
@@ -78,12 +83,12 @@
         .profile-field label { display:block; font-weight:bold; color:#aaa; font-size:12px; margin-bottom:3px; }
         .profile-field input, .profile-field textarea { width:100%; max-width:300px; padding:8px; border-radius:5px; border:1px solid #2a2a3a; background:#0f0f1a; color:#eee; }
         .theme-toggle { background:transparent; border:none; font-size:24px; cursor:pointer; padding:5px 10px; }
-
-        /* ===== أنيميشن وأيقونات ===== */
-        @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
-        .marker-animate { animation:popIn 0.4s ease forwards; }
+        
+        /* ===== أيقونات SVG ===== */
         .custom-div-icon { background:transparent !important; border:none !important; display:flex !important; align-items:center !important; justify-content:center !important; }
         .leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
+        @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+        .marker-animate { animation:popIn 0.4s ease forwards; }
 
         @media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } .popup-text { min-width:150px; max-width:220px; font-size:13px; } input,button { font-size:16px; padding:14px 20px; } }
     </style>
@@ -219,12 +224,6 @@
             popupAnchor: [1, -30]
         });
 
-        // ===== التنقل بين الواجهة والتطبيق =====
-        window.showApp = function() {
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('appBox').style.display = 'block';
-        };
-
         // ===== دوال الحساب =====
         window.signup = function() {
             var email = document.getElementById("email").value;
@@ -242,6 +241,22 @@
         };
         window.logout = function() { auth.signOut(); };
 
+        // ===== التنقل =====
+        window.showApp = function() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('appBox').style.display = 'block';
+        };
+        window.goToMap = function() {
+            document.getElementById("mapPage").style.display = "block";
+            document.getElementById("profilePage").style.display = "none";
+            if (map) map.invalidateSize();
+        };
+        window.showProfile = function() {
+            document.getElementById("mapPage").style.display = "none";
+            document.getElementById("profilePage").style.display = "block";
+            loadProfile();
+        };
+
         // ===== الوضع الليلي =====
         window.toggleTheme = function() {
             document.body.classList.toggle('light');
@@ -256,7 +271,10 @@
         };
         (function() {
             var theme = localStorage.getItem('theme');
-            if (theme === 'light') { document.body.classList.add('light'); document.getElementById('themeBtn').textContent = '☀️'; }
+            if (theme === 'light') {
+                document.body.classList.add('light');
+                document.getElementById('themeBtn').textContent = '☀️';
+            }
         })();
 
         // ===== مراقبة المستخدم =====
@@ -274,17 +292,6 @@
                 document.getElementById("profilePage").style.display = "none";
             }
         });
-
-        window.goToMap = function() {
-            document.getElementById("mapPage").style.display = "block";
-            document.getElementById("profilePage").style.display = "none";
-            if (map) map.invalidateSize();
-        };
-        window.showProfile = function() {
-            document.getElementById("mapPage").style.display = "none";
-            document.getElementById("profilePage").style.display = "block";
-            loadProfile();
-        };
 
         // ===== الملف الشخصي =====
         function loadUserProfile() {
@@ -366,7 +373,7 @@
             });
         }
 
-        // ===== الإعجابات والتعليقات والحذف =====
+        // ===== الإعجابات والتعليقات =====
         window.toggleLike = function(docId) {
             if (!currentUser) { alert("يجب تسجيل الدخول"); return; }
             var docRef = db.collection("messages").doc(docId);
@@ -401,7 +408,7 @@
         };
 
         // ======================================================
-        // ===== دوال الخريطة (نفس الكود اللي اشتغل) =====
+        // ===== دوال الخريطة =====
         // ======================================================
         function startMap(user) {
             map = L.map('map', {
@@ -413,7 +420,6 @@
                 maxBoundsViscosity: 0.5
             });
 
-            // استخدام رابط خريطة مستقر
             L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
@@ -449,9 +455,6 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // إضافة العلامة الجديدة فوراً وإعادة تحميل الرسائل
-                        var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
-                        marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
                         loadMessages();
                     })
                     .catch(function(err) {
@@ -464,14 +467,12 @@
         }
 
         function loadMessages() {
-            // تنظيف العلامات القديمة
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
                 }
             });
 
-            // إعادة طبقة الخريطة
             L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
@@ -479,7 +480,6 @@
                 maxZoom: 18
             }).addTo(map);
 
-            // إعادة علامة موقع المستخدم
             navigator.geolocation.getCurrentPosition(function(pos) {
                 var lat = pos.coords.latitude;
                 var lng = pos.coords.longitude;
