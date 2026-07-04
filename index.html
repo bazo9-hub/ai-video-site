@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        /* كل الأنماط السابقة (نفسها) */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
         body { background:#0f0f1a; color:#eee; }
         .container { max-width:1100px; margin:auto; padding:20px; }
@@ -395,7 +396,7 @@
             });
         };
 
-        // ===== 7. دوال الخريطة =====
+        // ===== 7. دوال الخريطة (مع إصلاح تداخل الأحداث) =====
         function startMap(user) {
             if (map) { map.remove(); }
             map = L.map('map', {
@@ -439,7 +440,12 @@
                 }
             });
 
+            // ===== حدث النقر على الخريطة (مع منع تداخل الدبابيس) =====
             map.on('click', function(e) {
+                // إذا كان النقر على علامة (Marker)، لا تفعل شيئاً
+                if (e.originalEvent.target.closest('.leaflet-marker-icon')) {
+                    return;
+                }
                 if (!isAddingMode) return;
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -476,59 +482,64 @@
                     });
                 });
             });
-function loadMessages() {
-    if (!map) return;
-    
-    map.eachLayer(function(layer) {
-        if (!!layer.getPopup || !!layer._popup) {
-            map.removeLayer(layer);
+
+            loadMessages();
         }
-    });
 
-    L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        noWrap: true,
-        minZoom: 1,
-        maxZoom: 18
-    }).addTo(map);
-
-    navigator.geolocation.getCurrentPosition(function(pos) {
-        var lat = pos.coords.latitude;
-        var lng = pos.coords.longitude;
-        L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
-    }, function() {});
-
-    db.collection("messages").get()
-        .then(function(snapshot) {
-            snapshot.forEach(function(doc) {
-                var data = doc.data();
-                var docId = doc.id;
-                if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
-                    var likes = data.likes || 0;
-                    var isOwner = (currentUser && currentUser.uid === data.uid);
-
-                    // ===== نافذة مبسطة مع الأزرار =====
-                    var popupContent = 
-                        "<div class='popup-text'>" +
-                        "<b>" + (data.username || 'مجهول') + "</b><br>" +
-                        data.message + "<br>" +
-                        "<span class='likes-count'>❤️ " + likes + "</span>" +
-                        " <button class='action-btn like-btn' onclick='toggleLike(\"" + docId + "\")'>👍</button>" +
-                        " <button class='action-btn comment-btn' onclick='addComment(\"" + docId + "\")'>💬</button>" +
-                        (isOwner ? " <button class='action-btn delete-btn' onclick='deleteMessage(\"" + docId + "\", \"" + data.uid + "\")'>🗑️</button>" : "") +
-                        "<br><small>" + (data.createdAt?.toDate?.()?.toLocaleDateString('ar-EG') || '') + "</small>" +
-                        "<hr style='margin:5px 0;'>" +
-                        "<div id='comments-" + docId + "' style='text-align:left;font-size:13px;max-height:100px;overflow-y:auto;'><i>⏳ جاري التحميل...</i></div>" +
-                        "</div>";
-
-                    var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
-                    if (marker._icon) marker._icon.classList.add('marker-animate');
-                    marker.bindPopup(popupContent);
+        // ===== 8. تحميل الرسائل (النسخة الصحيحة) =====
+        function loadMessages() {
+            if (!map) return;
+            
+            map.eachLayer(function(layer) {
+                if (!!layer.getPopup || !!layer._popup) {
+                    map.removeLayer(layer);
                 }
             });
-        })
-        .catch(function(err) { console.error('خطأ في تحميل الرسائل:', err); });
-}
+
+            L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                noWrap: true,
+                minZoom: 1,
+                maxZoom: 18
+            }).addTo(map);
+
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude;
+                var lng = pos.coords.longitude;
+                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
+            }, function() {});
+
+            db.collection("messages").get()
+                .then(function(snapshot) {
+                    snapshot.forEach(function(doc) {
+                        var data = doc.data();
+                        var docId = doc.id;
+                        if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
+                            var likes = data.likes || 0;
+                            var isOwner = (currentUser && currentUser.uid === data.uid);
+
+                            // ===== بناء النافذة المنبثقة =====
+                            var popupContent = 
+                                "<div class='popup-text'>" +
+                                "<b>" + (data.username || 'مجهول') + "</b><br>" +
+                                data.message + "<br>" +
+                                "<span class='likes-count'>❤️ " + likes + "</span>" +
+                                " <button class='action-btn like-btn' onclick='toggleLike(\"" + docId + "\")'>👍</button>" +
+                                " <button class='action-btn comment-btn' onclick='addComment(\"" + docId + "\")'>💬</button>" +
+                                (isOwner ? " <button class='action-btn delete-btn' onclick='deleteMessage(\"" + docId + "\", \"" + data.uid + "\")'>🗑️</button>" : "") +
+                                "<br><small>" + (data.createdAt?.toDate?.()?.toLocaleDateString('ar-EG') || '') + "</small>" +
+                                "<hr style='margin:5px 0;'>" +
+                                "<div id='comments-" + docId + "' style='text-align:left;font-size:13px;max-height:100px;overflow-y:auto;'><i>⏳ جاري التحميل...</i></div>" +
+                                "</div>";
+
+                            var marker = L.marker([data.latitude, data.longitude], {icon: redIcon}).addTo(map);
+                            if (marker._icon) marker._icon.classList.add('marker-animate');
+                            marker.bindPopup(popupContent);
+                        }
+                    });
+                })
+                .catch(function(err) { console.error('خطأ في تحميل الرسائل:', err); });
+        }
 
         // ===== 9. مراقبة المستخدم =====
         auth.onAuthStateChanged(function(user) {
