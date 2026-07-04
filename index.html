@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bazo – النهائي</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -396,7 +396,7 @@
             });
         };
 
-        // ===== 7. دوال الخريطة =====
+        // ===== 7. دوال الخريطة (مع رابط الخريطة الصحيح) =====
         function startMap(user) {
             if (map) { map.remove(); }
             map = L.map('map', {
@@ -408,7 +408,8 @@
                 maxBoundsViscosity: 0.5
             });
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // ===== الرابط الجديد للخريطة (المستقر) =====
+            L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
                 minZoom: 1,
@@ -424,7 +425,6 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // زر إضافة رسالة
             document.getElementById('addMessageBtn').addEventListener('click', function() {
                 isAddingMode = !isAddingMode;
                 if (isAddingMode) {
@@ -490,7 +490,7 @@
                 }
             });
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 noWrap: true,
                 minZoom: 1,
@@ -512,8 +512,7 @@
                             var likes = data.likes || 0;
                             var isOwner = (currentUser && currentUser.uid === data.uid);
 
-                            // ===== بناء popupContent بطريقة واضحة =====
-                            var popupContent = 
+                            var popupContent =
                                 '<div class="popup-text">' +
                                 '<b>' + (data.username || 'مجهول') + '</b><br>' +
                                 data.message + '<br>' +
