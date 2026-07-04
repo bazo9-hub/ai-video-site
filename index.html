@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+
     <!-- ===== الواجهة الفخمة ===== -->
     <div id="landingPage">
         <div class="container">
@@ -106,11 +107,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <!-- ===== ملفات المشروع ===== -->
+    <!-- ===== ملفات المشروع (الترتيب الصح) ===== -->
     <script src="firebase.js"></script>
     <script src="auth.js"></script>
-    <script src="map.js"></script>
-    <script src="messages.js"></script>
+    <script src="messages.js"></script>   <!-- 👈 أولاً -->
+    <script src="map.js"></script>        <!-- 👈 ثانياً -->
     <script src="profile.js"></script>
     <script src="ui.js"></script>
 </body>
