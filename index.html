@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazo – النهائي</title>
+    <title>Bazo</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -37,7 +37,7 @@
     </style>
 </head>
 <body>
-    <!-- ===== تسجيل الدخول ===== -->
+    <!-- تسجيل الدخول -->
     <div id="loginBox">
         <h1>🔐 Bazo</h1>
         <input id="email" placeholder="البريد الإلكتروني"><br>
@@ -47,7 +47,7 @@
         <p id="status"></p>
     </div>
 
-    <!-- ===== التطبيق ===== -->
+    <!-- التطبيق -->
     <div id="appBox">
         <div id="topBar">
             <h2>🌍 Bazo</h2>
@@ -310,6 +310,7 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
+            // ===== كتابة رسالة جديدة (بدون loadMessages) =====
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -329,13 +330,10 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // نضيف العلامة الجديدة فوراً
+                        // ===== نضيف الدبوس الجديد فقط، ولا نستدعي loadMessages =====
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
                         marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
-                        // ننتظر نصف ثانية ثم نحدث الخريطة
-                        setTimeout(function() {
-                            loadMessages();
-                        }, 500);
+                        // لا نستدعي loadMessages() هنا أبداً
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -343,35 +341,28 @@
                 });
             });
 
+            // ===== تحميل الرسائل مرة واحدة عند بدء الخريطة =====
             loadMessages();
         }
 
+        // ===== تحميل الرسائل (مرة واحدة فقط) =====
         function loadMessages() {
-            map.eachLayer(function(layer) {
-                if (!!layer.getPopup || !!layer._popup) {
-                    map.removeLayer(layer);
-                }
-            });
-
-            L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
-                noWrap: true,
-                minZoom: 1,
-                maxZoom: 18
-            }).addTo(map);
-
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                var lat = pos.coords.latitude;
-                var lng = pos.coords.longitude;
-                L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
-            }, function() {});
-
+            // لا نمسح العلامات الموجودة، نضيف فقط
             db.collection("messages").get()
                 .then(function(snapshot) {
                     snapshot.forEach(function(doc) {
                         var data = doc.data();
                         var docId = doc.id;
                         if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
+                            // التحقق من عدم وجود العلامة مسبقاً
+                            var exists = false;
+                            map.eachLayer(function(layer) {
+                                if (layer._latlng && layer._latlng.lat === data.latitude && layer._latlng.lng === data.longitude) {
+                                    exists = true;
+                                }
+                            });
+                            if (exists) return;
+
                             var likes = data.likes || 0;
                             var isOwner = (currentUser && currentUser.uid === data.uid);
 
