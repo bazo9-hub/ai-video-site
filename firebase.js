@@ -1,3 +1,4 @@
+// ===== إعدادات Firebase =====
 var firebaseConfig = {
     apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
     authDomain: "bazo-a36fe.firebaseapp.com",
@@ -9,7 +10,10 @@ var firebaseConfig = {
     measurementId: "G-ES9JXGH44V"
 };
 
+// تهيئة Firebase
 firebase.initializeApp(firebaseConfig);
+
+// متغيرات عامة
 var auth = firebase.auth();
 var db = firebase.firestore();
 var map, currentUser = null;
