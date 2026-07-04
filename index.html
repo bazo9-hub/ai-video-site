@@ -310,7 +310,7 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // ===== كتابة رسالة جديدة (بدون loadMessages) =====
+            // ===== كتابة رسالة جديدة =====
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -330,10 +330,18 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
-                        // ===== نضيف الدبوس الجديد فقط، ولا نستدعي loadMessages =====
+                        // ===== نضيف الدبوس الجديد مع الأزرار =====
+                        var popupContent = 
+                            '<div class="popup-text">' +
+                            '<b>' + (username || user.email) + '</b><br>' +
+                            msg + '<br>' +
+                            '<span class="likes-count">❤️ 0</span>' +
+                            ' <button class="action-btn like-btn" onclick="alert(\'تم الإعجاب!\')">👍</button>' +
+                            ' <button class="action-btn comment-btn" onclick="alert(\'تم التعليق!\')">💬</button>' +
+                            '</div>';
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
-                        marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
-                        // لا نستدعي loadMessages() هنا أبداً
+                        marker.bindPopup(popupContent);
+                        // لا نستدعي loadMessages() هنا
                     })
                     .catch(function(err) {
                         alert('❌ فشل الحفظ: ' + err.message);
@@ -341,11 +349,10 @@
                 });
             });
 
-            // ===== تحميل الرسائل مرة واحدة عند بدء الخريطة =====
             loadMessages();
         }
 
-        // ===== تحميل الرسائل (مرة واحدة فقط) =====
+        // ===== تحميل الرسائل =====
         function loadMessages() {
             // لا نمسح العلامات الموجودة، نضيف فقط
             db.collection("messages").get()
