@@ -74,7 +74,6 @@
         .custom-div-icon { background:transparent !important; border:none !important; display:flex !important; align-items:center !important; justify-content:center !important; }
         .leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
 
-        /* زر إضافة رسالة */
         .add-message-btn {
             position: absolute;
             bottom: 30px;
@@ -424,7 +423,6 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
-            // زر إضافة رسالة
             document.getElementById('addMessageBtn').addEventListener('click', function() {
                 isAddingMode = !isAddingMode;
                 if (isAddingMode) {
@@ -482,8 +480,10 @@
             loadMessages();
         }
 
-        // ===== 8. تحميل الرسائل =====
+        // ===== 8. تحميل الرسائل (النسخة الصحيحة) =====
         function loadMessages() {
+            if (!map) return;
+            
             map.eachLayer(function(layer) {
                 if (!!layer.getPopup || !!layer._popup) {
                     map.removeLayer(layer);
@@ -512,7 +512,8 @@
                             var likes = data.likes || 0;
                             var isOwner = (currentUser && currentUser.uid === data.uid);
 
-                            var popupContent =
+                            // ===== بناء popupContent بطريقة صحيحة =====
+                            var popupContent = 
                                 '<div class="popup-text">' +
                                 '<b>' + (data.username || 'مجهول') + '</b><br>' +
                                 data.message + '<br>' +
