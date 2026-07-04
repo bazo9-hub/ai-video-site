@@ -1,8 +1,4 @@
-window.showApp = function() {
-    document.getElementById('landingPage').style.display = 'none';
-    document.getElementById('appBox').style.display = 'block';
-};
-
+// ===== دوال الحساب =====
 window.signup = function() {
     var email = document.getElementById("email").value;
     var password = document.getElementById("password").value;
@@ -20,3 +16,8 @@ window.login = function() {
 };
 
 window.logout = function() { auth.signOut(); };
+
+window.showApp = function() {
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('appBox').style.display = 'block';
+};
