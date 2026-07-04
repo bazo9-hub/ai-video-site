@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazo</title>
+    <title>Bazo – النهائي</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -311,11 +311,13 @@
                 alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
             });
 
+            // ===== حدث كتابة رسالة جديدة =====
             map.on('click', function(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
                 var msg = prompt('✍️ اكتب رسالتك لهذا المكان:');
                 if (!msg) return;
+
                 getUsername(function(username) {
                     db.collection("messages").add({
                         uid: user.uid,
@@ -329,8 +331,10 @@
                     })
                     .then(function() {
                         alert('✅ تم حفظ رسالتك!');
+                        // ===== نضيف الدبوس الجديد مباشرة =====
                         var marker = L.marker([lat, lng], {icon: redIcon}).addTo(map);
                         marker.bindPopup("<b>" + (username || user.email) + "</b><br>" + msg);
+                        // ===== نعيد تحميل الرسائل لتحديث العدد والإعجابات =====
                         loadMessages();
                     })
                     .catch(function(err) {
