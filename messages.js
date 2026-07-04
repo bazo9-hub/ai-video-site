@@ -1,24 +1,5 @@
 // ===== تحميل الرسائل =====
 function loadMessages() {
-    map.eachLayer(function(layer) {
-        if (!!layer.getPopup || !!layer._popup) {
-            map.removeLayer(layer);
-        }
-    });
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        noWrap: true,
-        minZoom: 1,
-        maxZoom: 18
-    }).addTo(map);
-
-    navigator.geolocation.getCurrentPosition(function(pos) {
-        var lat = pos.coords.latitude;
-        var lng = pos.coords.longitude;
-        L.marker([lat, lng], {icon: blueIcon}).addTo(map).bindPopup('📍 أنت هنا');
-    }, function() {});
-
     db.collection("messages").get()
         .then(function(snapshot) {
             snapshot.forEach(function(doc) {
