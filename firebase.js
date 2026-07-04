@@ -10,10 +10,7 @@ var firebaseConfig = {
     measurementId: "G-ES9JXGH44V"
 };
 
-// تهيئة Firebase
 firebase.initializeApp(firebaseConfig);
-
-// متغيرات عامة
 var auth = firebase.auth();
 var db = firebase.firestore();
 var map, currentUser = null;
