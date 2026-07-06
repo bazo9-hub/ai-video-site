@@ -1,4 +1,3 @@
-// ===== دوال الحساب =====
 window.signup = function() {
     var email = document.getElementById("email").value;
     var password = document.getElementById("password").value;
