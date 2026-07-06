@@ -3,7 +3,10 @@
 // ======================================================
 var redIcon = L.divIcon({
     className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ff4757" stroke="white" stroke-width="1.5"/></svg>`,
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+            fill="#ff4757" stroke="white" stroke-width="1.5"/>
+          </svg>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
@@ -11,7 +14,10 @@ var redIcon = L.divIcon({
 
 var blueIcon = L.divIcon({
     className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#1e90ff" stroke="white" stroke-width="1.5"/></svg>`,
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+            fill="#1e90ff" stroke="white" stroke-width="1.5"/>
+          </svg>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
@@ -22,17 +28,13 @@ var blueIcon = L.divIcon({
 // ======================================================
 
 window.toggleLike = function(docId) {
-    console.log("✅ toggleLike تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
     }
     var docRef = db.collection("messages").doc(docId);
     docRef.get().then(function(doc) {
-        if (!doc.exists) {
-            alert("الرسالة غير موجودة");
-            return;
-        }
+        if (!doc.exists) return;
         var data = doc.data();
         var likedBy = data.likedBy || [];
         var index = likedBy.indexOf(currentUser.uid);
@@ -58,7 +60,6 @@ window.toggleLike = function(docId) {
 };
 
 window.addComment = function(docId) {
-    console.log("✅ addComment تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -80,7 +81,6 @@ window.addComment = function(docId) {
 };
 
 window.deleteMessage = function(docId, authorUid) {
-    console.log("✅ deleteMessage تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -192,7 +192,6 @@ function loadMessages() {
                     var likes = data.likes || 0;
                     var isOwner = (currentUser && currentUser.uid === data.uid);
 
-                    // ===== بناء النافذة المنبثقة بالأزرار =====
                     var popupContent =
                         '<div class="popup-text">' +
                         '<b>' + (data.username || 'مجهول') + '</b><br>' +
@@ -210,7 +209,6 @@ function loadMessages() {
                     if (marker._icon) marker._icon.classList.add('marker-animate');
                     marker.bindPopup(popupContent);
 
-                    // جلب التعليقات عند فتح النافذة
                     marker.on('popupopen', function() {
                         var container = document.getElementById('comments-' + docId);
                         if (container) {
