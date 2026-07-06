@@ -1,8 +1,3 @@
-// ======================================================
-// ===== دوال الملف الشخصي (البيانات فقط) =====
-// ======================================================
-
-// ===== تحميل بيانات المستخدم =====
 function loadUserProfile() {
     if (!currentUser) return;
     db.collection("users").doc(currentUser.uid).get().then(function(doc) {
@@ -22,7 +17,6 @@ function loadUserProfile() {
     });
 }
 
-// ===== حفظ الملف الشخصي =====
 window.saveProfile = function() {
     if (!currentUser) return;
     var username = document.getElementById("profileUsername").value.trim();
@@ -48,7 +42,6 @@ window.saveProfile = function() {
     });
 };
 
-// ===== إعادة تعيين الملف الشخصي =====
 window.resetProfile = function() {
     if (!confirm("هل أنت متأكد من إعادة التعيين؟")) return;
     db.collection("users").doc(currentUser.uid).delete().then(function() {
@@ -64,10 +57,8 @@ window.resetProfile = function() {
     });
 };
 
-// ===== عرض الملف الشخصي (جلب البيانات وعرضها) =====
 function loadProfile() {
     if (!currentUser) return;
-    // عرض اسم المستخدم في العنوان
     db.collection("users").doc(currentUser.uid).get().then(function(doc) {
         if (doc.exists) {
             var data = doc.data();
@@ -76,12 +67,9 @@ function loadProfile() {
         }
     });
 
-    // عرض رسائل المستخدم
     db.collection("messages").where("uid", "==", currentUser.uid).get()
         .then(function(snapshot) {
-            var count = 0,
-                totalLikes = 0,
-                html = "";
+            var count = 0, totalLikes = 0, html = "";
             snapshot.forEach(function(doc) {
                 var data = doc.data();
                 count++;
