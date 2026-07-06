@@ -3,10 +3,7 @@
 // ======================================================
 var redIcon = L.divIcon({
     className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
-            fill="#ff4757" stroke="white" stroke-width="1.5"/>
-          </svg>`,
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ff4757" stroke="white" stroke-width="1.5"/></svg>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
@@ -14,17 +11,14 @@ var redIcon = L.divIcon({
 
 var blueIcon = L.divIcon({
     className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
-            fill="#1e90ff" stroke="white" stroke-width="1.5"/>
-          </svg>`,
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#1e90ff" stroke="white" stroke-width="1.5"/></svg>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [1, -30]
 });
 
 // ======================================================
-// ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
+// ===== دوال التفاعل =====
 // ======================================================
 
 window.toggleLike = function(docId) {
@@ -120,7 +114,6 @@ function startMap(user) {
         maxZoom: 18
     }).addTo(map);
 
-    // ===== موقع المستخدم (دبوس أزرق) =====
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
@@ -130,7 +123,6 @@ function startMap(user) {
         alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
     });
 
-    // ===== الضغط على الخريطة لكتابة رسالة =====
     map.on('click', function(e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
@@ -160,14 +152,12 @@ function startMap(user) {
 }
 
 function loadMessages() {
-    // تنظيف الخريطة من العلامات القديمة
     map.eachLayer(function(layer) {
         if (!!layer.getPopup || !!layer._popup) {
             map.removeLayer(layer);
         }
     });
 
-    // إعادة طبقة الخريطة
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap',
         noWrap: true,
@@ -175,14 +165,12 @@ function loadMessages() {
         maxZoom: 18
     }).addTo(map);
 
-    // إعادة علامة موقع المستخدم
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
         L.marker([lat, lng], { icon: blueIcon }).addTo(map).bindPopup('📍 أنت هنا');
     }, function() {});
 
-    // جلب الرسائل وعرضها مع الأزرار
     db.collection("messages").get()
         .then(function(snapshot) {
             snapshot.forEach(function(doc) {
