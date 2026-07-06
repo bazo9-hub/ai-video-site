@@ -2,15 +2,12 @@
 // ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
 // ======================================================
 
-// ===== الإعجاب =====
 window.toggleLike = function(docId) {
-    console.log('تم الضغط على زر الإعجاب، docId:', docId);
-    
+    console.log("✅ toggleLike تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
     }
-    
     var docRef = db.collection("messages").doc(docId);
     docRef.get().then(function(doc) {
         if (!doc.exists) {
@@ -25,28 +22,24 @@ window.toggleLike = function(docId) {
         if (index > -1) {
             likedBy.splice(index, 1);
             newLikes--;
-            console.log('تم إلغاء الإعجاب');
         } else {
             likedBy.push(currentUser.uid);
             newLikes++;
-            console.log('تم الإعجاب');
         }
 
         docRef.update({
             likes: newLikes,
             likedBy: likedBy
         }).then(function() {
-            loadMessages(); // تحديث الخريطة
+            loadMessages();
         }).catch(function(err) {
             alert('❌ فشل الإعجاب: ' + err.message);
         });
     });
 };
 
-// ===== التعليق =====
 window.addComment = function(docId) {
-    console.log('تم الضغط على زر التعليق، docId:', docId);
-    
+    console.log("✅ addComment تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -61,16 +54,14 @@ window.addComment = function(docId) {
         createdAt: new Date()
     }).then(function() {
         alert('✅ تم إضافة التعليق!');
-        loadMessages(); // تحديث الخريطة
+        loadMessages();
     }).catch(function(err) {
         alert('❌ فشل التعليق: ' + err.message);
     });
 };
 
-// ===== الحذف =====
 window.deleteMessage = function(docId, authorUid) {
-    console.log('تم الضغط على زر الحذف، docId:', docId);
-    
+    console.log("✅ deleteMessage تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
