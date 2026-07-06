@@ -12,7 +12,7 @@ window.goToMap = function() {
 window.showProfile = function() {
     document.getElementById("mapPage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
-    loadProfile(); // تحميل بيانات الملف الشخصي
+    loadProfile(); // هذه الدالة موجودة في profile.js
 };
 
 // ===== الوضع الليلي =====
@@ -28,7 +28,7 @@ window.toggleTheme = function() {
     }
 };
 
-// تطبيق الوضع المحفوظ عند تحميل الصفحة
+// تطبيق الوضع المحفوظ
 (function() {
     var theme = localStorage.getItem('theme');
     if (theme === 'light') {
