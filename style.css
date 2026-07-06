@@ -1,50 +1,123 @@
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
-body { background:#0f0f1a; color:#eee; }
-.container { max-width:1100px; margin:auto; padding:20px; }
-#landingPage { display:block; }
-#appBox { display:none; height:100vh; }
+/* ===== تحسينات صفحة الملف الشخصي ===== */
+#profilePage {
+    padding: 20px 15px;
+    max-width: 600px;
+    margin: auto;
+}
 
-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:20px 0; border-bottom:1px solid #2a2a3a; }
-.logo { font-size:28px; font-weight:bold; background:linear-gradient(135deg,#4CAF50,#00bcd4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.nav-links a { margin:0 12px; font-size:16px; color:#aaa; transition:0.3s; text-decoration:none; }
-.nav-links a:hover { color:#fff; }
-.btn { background:#4CAF50; color:#fff; padding:10px 24px; border-radius:30px; border:none; cursor:pointer; font-size:16px; transition:0.3s; }
-.btn:hover { background:#388E3C; transform:scale(1.03); }
-.btn-outline { background:transparent; border:1px solid #4CAF50; color:#4CAF50; }
-.btn-outline:hover { background:#4CAF50; color:#fff; }
+#profilePage h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-.hero { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:50px 0; gap:30px; }
-.hero-text { flex:1; min-width:280px; }
-.hero-text h1 { font-size:42px; margin-bottom:20px; background:linear-gradient(135deg,#fff,#4CAF50); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.hero-text p { font-size:18px; color:#aaa; margin-bottom:25px; }
-.hero-image { flex:1; min-width:280px; text-align:center; }
-.hero-image .map-preview { background:linear-gradient(135deg,#1a3a2a,#0a1a1a); border-radius:20px; padding:40px; min-height:250px; display:flex; align-items:center; justify-content:center; font-size:80px; border:1px solid #2a2a3a; }
+#profilePage .profile-field {
+    margin-bottom: 15px;
+}
 
-.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:30px; padding:50px 0; }
-.feature-card { background:#1a1a2e; padding:25px; border-radius:16px; border:1px solid #2a2a3a; text-align:center; transition:0.3s; }
-.feature-card:hover { transform:translateY(-8px); border-color:#4CAF50; }
-.feature-card .icon { font-size:48px; margin-bottom:15px; }
-.feature-card h3 { margin-bottom:10px; color:#fff; }
-.feature-card p { color:#aaa; font-size:14px; }
+#profilePage .profile-field label {
+    display: block;
+    font-weight: bold;
+    color: #aaa;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
 
-footer { border-top:1px solid #2a2a3a; padding:40px 0 20px; margin-top:40px; }
-.footer-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:30px; margin-bottom:30px; }
-.footer-grid h4 { color:#fff; margin-bottom:15px; font-size:16px; }
-.footer-grid ul { list-style:none; padding:0; }
-.footer-grid ul li { margin-bottom:10px; }
-.footer-grid ul li a { color:#888; font-size:14px; transition:0.3s; text-decoration:none; }
-.footer-grid ul li a:hover { color:#4CAF50; }
-.social-links { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; }
-.social-links a { background:#2d2d44; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; transition:0.3s; color:#aaa; text-decoration:none; }
-.social-links a:hover { background:#4CAF50; color:#fff; transform:scale(1.1); }
-.copyright { text-align:center; padding-top:20px; border-top:1px solid #2a2a3a; color:#666; font-size:14px; }
-.copyright span { color:#4CAF50; }
-.login-cta { text-align:center; padding:40px 0; }
+#profilePage .profile-field input,
+#profilePage .profile-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #2a2a3a;
+    background: #0f0f1a;
+    color: #eee;
+    font-size: 14px;
+    box-sizing: border-box;
+}
 
-#loginBox { padding:50px; text-align:center; }
-#map { height:90vh; width:100%; }
-input, button { padding:10px 20px; margin:5px; border-radius:8px; border:none; }
-button { background:#4CAF50; color:white; cursor:pointer; }
-#topBar { background:#1a1a2e; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+#profilePage .profile-field textarea {
+    height: 70px;
+    resize: vertical;
+}
 
-@media (max-width:700px) { .hero-text h1 { font-size:30px; } .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; } header { flex-direction:column; gap:15px; } .social-links { justify-content:center; } }
+/* ===== الأزرار في صفحة الملف الشخصي ===== */
+#profilePage .btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+#profilePage .btn-group button {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#profilePage .btn-group .save-btn {
+    background: #2196F3;
+    color: white;
+}
+
+#profilePage .btn-group .save-btn:hover {
+    background: #1976D2;
+}
+
+#profilePage .btn-group .reset-btn {
+    background: #f44336;
+    color: white;
+}
+
+#profilePage .btn-group .reset-btn:hover {
+    background: #d32f2f;
+}
+
+/* ===== زر رجوع للخريطة ===== */
+.back-btn {
+    background: #555;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.back-btn:hover {
+    background: #777;
+}
+
+/* ===== قائمة رسائل المستخدم ===== */
+.profile-item {
+    background: #1a1a2e;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.profile-item small {
+    color: #aaa;
+    font-size: 12px;
+}
+
+/* ===== تحسينات الجوال ===== */
+@media (max-width: 600px) {
+    #profilePage {
+        padding: 15px;
+    }
+    #profilePage .btn-group button {
+        min-width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+    .back-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
