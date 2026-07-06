@@ -18,17 +18,21 @@ var blueIcon = L.divIcon({
 });
 
 // ======================================================
-// ===== دوال التفاعل =====
+// ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
 // ======================================================
 
 window.toggleLike = function(docId) {
+    console.log("✅ toggleLike تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
     }
     var docRef = db.collection("messages").doc(docId);
     docRef.get().then(function(doc) {
-        if (!doc.exists) return;
+        if (!doc.exists) {
+            alert("الرسالة غير موجودة");
+            return;
+        }
         var data = doc.data();
         var likedBy = data.likedBy || [];
         var index = likedBy.indexOf(currentUser.uid);
@@ -54,6 +58,7 @@ window.toggleLike = function(docId) {
 };
 
 window.addComment = function(docId) {
+    console.log("✅ addComment تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -75,6 +80,7 @@ window.addComment = function(docId) {
 };
 
 window.deleteMessage = function(docId, authorUid) {
+    console.log("✅ deleteMessage تم استدعاؤها، docId:", docId);
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -114,6 +120,7 @@ function startMap(user) {
         maxZoom: 18
     }).addTo(map);
 
+    // ===== موقع المستخدم (دبوس أزرق) =====
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
@@ -123,6 +130,7 @@ function startMap(user) {
         alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
     });
 
+    // ===== الضغط على الخريطة لكتابة رسالة =====
     map.on('click', function(e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
@@ -152,12 +160,14 @@ function startMap(user) {
 }
 
 function loadMessages() {
+    // تنظيف الخريطة من العلامات القديمة
     map.eachLayer(function(layer) {
         if (!!layer.getPopup || !!layer._popup) {
             map.removeLayer(layer);
         }
     });
 
+    // إعادة طبقة الخريطة
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap',
         noWrap: true,
@@ -165,12 +175,14 @@ function loadMessages() {
         maxZoom: 18
     }).addTo(map);
 
+    // إعادة علامة موقع المستخدم
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
         L.marker([lat, lng], { icon: blueIcon }).addTo(map).bindPopup('📍 أنت هنا');
     }, function() {});
 
+    // جلب الرسائل وعرضها مع الأزرار
     db.collection("messages").get()
         .then(function(snapshot) {
             snapshot.forEach(function(doc) {
@@ -180,6 +192,7 @@ function loadMessages() {
                     var likes = data.likes || 0;
                     var isOwner = (currentUser && currentUser.uid === data.uid);
 
+                    // ===== بناء النافذة المنبثقة بالأزرار =====
                     var popupContent =
                         '<div class="popup-text">' +
                         '<b>' + (data.username || 'مجهول') + '</b><br>' +
@@ -197,6 +210,7 @@ function loadMessages() {
                     if (marker._icon) marker._icon.classList.add('marker-animate');
                     marker.bindPopup(popupContent);
 
+                    // جلب التعليقات عند فتح النافذة
                     marker.on('popupopen', function() {
                         var container = document.getElementById('comments-' + docId);
                         if (container) {
