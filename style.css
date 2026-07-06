@@ -1,8 +1,7 @@
 /* ===== الأساسيات ===== */
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
-body { background:#0f0f1a; color:#eee; transition: 0.3s; }
+body { background:#0f0f1a; color:#eee; }
 body.light { background:#f0f2f5; color:#1a1a2e; }
-
 .container { max-width:1100px; margin:auto; padding:20px; }
 #landingPage { display:block; }
 #appBox { display:none; height:100vh; }
@@ -50,56 +49,43 @@ footer { border-top:1px solid #2a2a3a; padding:40px 0 20px; margin-top:40px; }
 #mapPage { height:90vh; display:block; }
 #profilePage { display:none; padding:20px 15px; text-align:left; max-width:600px; margin:auto; height:90vh; overflow-y:auto; }
 #map { height:90vh; width:100%; }
-
 input, button, textarea { padding:10px 20px; margin:5px; border-radius:8px; border:none; font-family:inherit; font-size:14px; }
 input, textarea { background:#1a1a2e; color:#eee; border:1px solid #2a2a3a; width:100%; max-width:350px; }
 textarea { height:60px; resize:vertical; }
-
 #topBar { background:#1a1a2e; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
 #topBar button { margin:2px; padding:8px 14px; font-size:13px; }
 
-/* ===== أزرار التفاعل ===== */
 .action-btn { background:transparent; border:none; font-size:18px; cursor:pointer; padding:0 5px; }
 .like-btn { color:#ff4757; }
 .comment-btn { color:#1e90ff; }
 .delete-btn { color:#ff6348; }
-
 .popup-text { font-size:14px; line-height:1.8; text-align:center; min-width:200px; max-width:280px; color:#333; }
 .likes-count { color:#ff4757; font-weight:bold; }
 .comment-box { background:#f0f0f0; color:#333; padding:5px 10px; border-radius:5px; margin:5px 0; font-size:13px; text-align:left; }
 
-/* ===== الملف الشخصي ===== */
 .profile-item { background:#1a1a2e; padding:10px; margin:8px 0; border-radius:8px; border-left:4px solid #4CAF50; }
 .profile-item small { color:#aaa; }
 .back-btn { background:#555; color:white; padding:8px 18px; border-radius:8px; border:none; cursor:pointer; font-size:14px; margin-bottom:15px; }
 .back-btn:hover { background:#777; }
-
 .profile-avatar { width:80px; height:80px; border-radius:50%; border:3px solid #4CAF50; object-fit:cover; display:block; margin:0 auto 10px; }
 .profile-field { background:#1a1a2e; padding:12px; border-radius:8px; margin:10px 0; }
 .profile-field label { display:block; font-weight:bold; color:#aaa; font-size:12px; margin-bottom:3px; }
 .profile-field input, .profile-field textarea { width:100%; max-width:300px; padding:8px; border-radius:5px; border:1px solid #2a2a3a; background:#0f0f1a; color:#eee; }
 
-.profile-btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:15px 0; }
-.profile-btn-group button { flex:1; min-width:120px; padding:10px 20px; border-radius:8px; border:none; font-size:15px; cursor:pointer; transition:0.3s; }
-.profile-btn-group .save-btn { background:#2196F3; color:white; }
-.profile-btn-group .save-btn:hover { background:#1976D2; }
-.profile-btn-group .reset-btn { background:#f44336; color:white; }
-.profile-btn-group .reset-btn:hover { background:#d32f2f; }
-
-/* ===== أيقونات الدبابيس (مبسطة) ===== */
-.custom-div-icon {
-    background: transparent !important;
-    border: none !important;
-}
-.leaflet-marker-icon.custom-div-icon {
-    background: transparent !important;
-    border: none !important;
-}
-
+/* ===== أيقونات الدبابيس (نسخة مبسطة) ===== */
+.custom-div-icon { background:transparent !important; border:none !important; }
+.leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
 @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
 .marker-animate { animation:popIn 0.4s ease forwards; }
 
-/* ===== الجوال ===== */
+/* ===== تحسينات بسيطة للملف الشخصي (لا تؤثر على الخريطة) ===== */
+#profilePage .profile-btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:15px 0; }
+#profilePage .profile-btn-group button { flex:1; min-width:120px; padding:10px 20px; border-radius:8px; border:none; font-size:15px; cursor:pointer; transition:0.3s; }
+#profilePage .profile-btn-group .save-btn { background:#2196F3; color:white; }
+#profilePage .profile-btn-group .save-btn:hover { background:#1976D2; }
+#profilePage .profile-btn-group .reset-btn { background:#f44336; color:white; }
+#profilePage .profile-btn-group .reset-btn:hover { background:#d32f2f; }
+
 @media (max-width:700px) {
     .hero-text h1 { font-size:30px; }
     .nav-links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
@@ -108,6 +94,6 @@ textarea { height:60px; resize:vertical; }
     .popup-text { min-width:150px; max-width:220px; font-size:13px; }
     input,button { font-size:16px; padding:14px 20px; }
     #profilePage { padding:15px; }
-    .profile-btn-group button { min-width:100%; padding:12px; font-size:16px; }
+    #profilePage .profile-btn-group button { min-width:100%; padding:12px; font-size:16px; }
     .back-btn { width:100%; text-align:center; }
 }
