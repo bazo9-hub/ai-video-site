@@ -4,13 +4,19 @@
 
 // ===== الإعجاب =====
 window.toggleLike = function(docId) {
+    console.log('تم الضغط على زر الإعجاب، docId:', docId);
+    
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
     }
+    
     var docRef = db.collection("messages").doc(docId);
     docRef.get().then(function(doc) {
-        if (!doc.exists) return;
+        if (!doc.exists) {
+            alert("الرسالة غير موجودة");
+            return;
+        }
         var data = doc.data();
         var likedBy = data.likedBy || [];
         var index = likedBy.indexOf(currentUser.uid);
@@ -19,9 +25,11 @@ window.toggleLike = function(docId) {
         if (index > -1) {
             likedBy.splice(index, 1);
             newLikes--;
+            console.log('تم إلغاء الإعجاب');
         } else {
             likedBy.push(currentUser.uid);
             newLikes++;
+            console.log('تم الإعجاب');
         }
 
         docRef.update({
@@ -37,6 +45,8 @@ window.toggleLike = function(docId) {
 
 // ===== التعليق =====
 window.addComment = function(docId) {
+    console.log('تم الضغط على زر التعليق، docId:', docId);
+    
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
@@ -59,6 +69,8 @@ window.addComment = function(docId) {
 
 // ===== الحذف =====
 window.deleteMessage = function(docId, authorUid) {
+    console.log('تم الضغط على زر الحذف، docId:', docId);
+    
     if (!currentUser) {
         alert("يجب تسجيل الدخول أولاً");
         return;
