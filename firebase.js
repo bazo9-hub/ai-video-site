@@ -1,3 +1,4 @@
+// ===== إعدادات Firebase =====
 var firebaseConfig = {
     apiKey: "AIzaSyBS70yDWhJy0Dyga40Uhi4L1m_4017Fe6c",
     authDomain: "bazo-a36fe.firebaseapp.com",
