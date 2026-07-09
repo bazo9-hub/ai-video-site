@@ -1,15 +1,21 @@
+// ======================================================
+// ===== دوال الواجهة (الوضع الليلي، التنقل) =====
+// ======================================================
+
+// ===== التنقل بين الخريطة والملف الشخصي =====
 window.goToMap = function() {
     document.getElementById("mapPage").style.display = "block";
     document.getElementById("profilePage").style.display = "none";
-    if (map) map.invalidateSize();
+    if (map) map.invalidateSize(); // إعادة ضبط حجم الخريطة
 };
 
 window.showProfile = function() {
     document.getElementById("mapPage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
-    loadProfile();
+    loadProfile(); // تحميل بيانات الملف الشخصي
 };
 
+// ===== الوضع الليلي =====
 window.toggleTheme = function() {
     document.body.classList.toggle('light');
     var btn = document.getElementById('themeBtn');
@@ -22,6 +28,7 @@ window.toggleTheme = function() {
     }
 };
 
+// تطبيق الوضع المحفوظ عند تحميل الصفحة
 (function() {
     var theme = localStorage.getItem('theme');
     if (theme === 'light') {
