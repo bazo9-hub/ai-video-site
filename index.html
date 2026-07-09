@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazo – النهائي</title>
+    <title>Bazo – كامل</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -72,7 +72,7 @@
             <h2>🌍 Bazo</h2>
             <div>
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
-                <button onclick="showProfile()">👤 حسابي</button>
+                <button onclick="showProfile()">👤 حسابي</button>   <!-- زر الملف الشخصي -->
                 <button onclick="logout()">تسجيل خروج</button>
             </div>
         </div>
@@ -96,10 +96,8 @@
             <div class="profile-field"><label>العمر</label><input id="profileAge" type="number" placeholder="مثلاً: 25"></div>
             <div class="profile-field"><label>المدينة/الدولة</label><input id="profileLocation" placeholder="مثلاً: دبي، الإمارات"></div>
             <div class="profile-field"><label>روابط حساباتك</label><input id="profileSocial" placeholder="فيسبوك, تويتر, إنستغرام (بينهم فاصلة)"></div>
-            <div class="profile-btn-group">
-                <button onclick="saveProfile()" class="save-btn">💾 حفظ</button>
-                <button onclick="resetProfile()" class="reset-btn">🔄 إعادة تعيين</button>
-            </div>
+            <button onclick="saveProfile()" style="background:#2196F3;">💾 حفظ</button>
+            <button onclick="resetProfile()" style="background:#f44336;">🔄 إعادة تعيين</button>
             <hr>
             <h3>📝 رسائلي</h3>
             <div id="profileMessages"></div>
@@ -111,11 +109,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-   <script src="firebase.js"></script>
-<script src="auth.js"></script>
-<script src="ui.js"></script>
-<script src="profile.js"></script>
-<script src="map.js"></script>   <!-- هذا الملف الآن يحتوي على كل شيء -->
-<script src="app.js"></script>
+    <!-- ===== ملفات المشروع (ترتيب التحميل مهم) ===== -->
+    <script src="firebase.js"></script>
+    <script src="auth.js"></script>
+    <script src="ui.js"></script>
+    <script src="profile.js"></script>
+    <script src="map.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
