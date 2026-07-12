@@ -1,3 +1,8 @@
+// ======================================================
+// ===== دوال الملف الشخصي =====
+// ======================================================
+
+// تحميل بيانات المستخدم عند تسجيل الدخول
 function loadUserProfile() {
     if (!currentUser) return;
     db.collection("users").doc(currentUser.uid).get().then(function(doc) {
@@ -17,6 +22,7 @@ function loadUserProfile() {
     });
 }
 
+// حفظ الملف الشخصي
 window.saveProfile = function() {
     if (!currentUser) return;
     var username = document.getElementById("profileUsername").value.trim();
@@ -36,12 +42,13 @@ window.saveProfile = function() {
         updatedAt: new Date()
     }, { merge: true }).then(function() {
         alert("✅ تم حفظ الملف الشخصي!");
-        loadMessages();
+        loadMessages(); // تحديث الخريطة
     }).catch(function(err) {
         alert("❌ فشل الحفظ: " + err.message);
     });
 };
 
+// إعادة تعيين الملف الشخصي
 window.resetProfile = function() {
     if (!confirm("هل أنت متأكد من إعادة التعيين؟")) return;
     db.collection("users").doc(currentUser.uid).delete().then(function() {
@@ -57,8 +64,11 @@ window.resetProfile = function() {
     });
 };
 
+// عرض الملف الشخصي (عند الضغط على زر حسابي)
 function loadProfile() {
     if (!currentUser) return;
+    
+    // عرض اسم المستخدم في العنوان
     db.collection("users").doc(currentUser.uid).get().then(function(doc) {
         if (doc.exists) {
             var data = doc.data();
@@ -67,6 +77,7 @@ function loadProfile() {
         }
     });
 
+    // عرض رسائل المستخدم وإحصائياته
     db.collection("messages").where("uid", "==", currentUser.uid).get()
         .then(function(snapshot) {
             var count = 0, totalLikes = 0, html = "";
@@ -78,8 +89,8 @@ function loadProfile() {
                     data.latitude.toFixed(4) + ', ' + data.longitude.toFixed(4) +
                     '</small><br><small>❤️ ' + (data.likes || 0) + ' إعجاب</small></div>';
             });
-            document.getElementById("profileCount").innerHTML = '<strong>عدد رسائلي:</strong> ' + count;
-            document.getElementById("profileLikes").innerHTML = '<strong>❤️ إجمالي الإعجابات:</strong> ' + totalLikes;
+            document.getElementById("profileCount").innerHTML = count;
+            document.getElementById("profileLikes").innerHTML = totalLikes;
             document.getElementById("profileMessages").innerHTML = html || "لا توجد رسائل بعد.";
         });
 }
