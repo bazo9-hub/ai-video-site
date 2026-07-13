@@ -72,19 +72,25 @@ textarea { height:60px; resize:vertical; }
 .profile-field label { display:block; font-weight:bold; color:#aaa; font-size:12px; margin-bottom:3px; }
 .profile-field input, .profile-field textarea { width:100%; max-width:300px; padding:8px; border-radius:5px; border:1px solid #2a2a3a; background:#0f0f1a; color:#eee; }
 
-/* ===== أيقونات الدبابيس (نسخة مبسطة) ===== */
+/* ===== أيقونات الدبابيس ===== */
 .custom-div-icon { background:transparent !important; border:none !important; }
-.leaflet-marker-icon.custom-div-icon { background:transparent !important; border:none !important; }
 @keyframes popIn { 0%{transform:scale(0.5);opacity:0;} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
 .marker-animate { animation:popIn 0.4s ease forwards; }
 
-/* ===== تحسينات بسيطة للملف الشخصي (لا تؤثر على الخريطة) ===== */
+/* ===== تحسينات الملف الشخصي ===== */
 #profilePage .profile-btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:15px 0; }
 #profilePage .profile-btn-group button { flex:1; min-width:120px; padding:10px 20px; border-radius:8px; border:none; font-size:15px; cursor:pointer; transition:0.3s; }
 #profilePage .profile-btn-group .save-btn { background:#2196F3; color:white; }
 #profilePage .profile-btn-group .save-btn:hover { background:#1976D2; }
 #profilePage .profile-btn-group .reset-btn { background:#f44336; color:white; }
 #profilePage .profile-btn-group .reset-btn:hover { background:#d32f2f; }
+
+/* ========================================== */
+/* ===== تلوين الإيموجي (أضفنا هذا) ===== */
+/* ========================================== */
+.red-marker { color: #ff4757; font-size: 32px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.blue-marker { color: #1e90ff; font-size: 32px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.custom-div-icon { background: transparent !important; border: none !important; }
 
 @media (max-width:700px) {
     .hero-text h1 { font-size:30px; }
@@ -96,31 +102,4 @@ textarea { height:60px; resize:vertical; }
     #profilePage { padding:15px; }
     #profilePage .profile-btn-group button { min-width:100%; padding:12px; font-size:16px; }
     .back-btn { width:100%; text-align:center; }
-}
-/* ===== إجبار الدبابيس على الظهور ===== */
-.custom-div-icon {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    background: transparent !important;
-    border: none !important;
-    z-index: 1000 !important;
-}
-
-.custom-div-icon svg {
-    width: 32px !important;
-    height: 32px !important;
-    display: block !important;
-}
-
-.leaflet-marker-icon.custom-div-icon {
-    background: transparent !important;
-    border: none !important;
-    z-index: 1000 !important;
-}
-
-.leaflet-marker-pane .custom-div-icon {
-    opacity: 1 !important;
 }
