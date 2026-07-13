@@ -1,24 +1,29 @@
 // ======================================================
-// ===== تعريف الأيقونات =====
+// ===== أيقونات باستخدام L.icon (مضمونة الظهور) =====
 // ======================================================
-var redIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ff4757" stroke="white" stroke-width="1.5"/></svg>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [1, -30]
+
+// أيقونة حمراء للرسائل
+var redIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
 });
 
-var blueIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#1e90ff" stroke="white" stroke-width="1.5"/></svg>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [1, -30]
+// أيقونة زرقاء للموقع
+var blueIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
 });
 
 // ======================================================
-// ===== دوال التفاعل =====
+// ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
 // ======================================================
 
 window.toggleLike = function(docId) {
@@ -143,10 +148,9 @@ function startMap(user) {
         })
         .then(function() {
             alert('✅ تم حفظ رسالتك!');
-            // نضيف الدبوس الجديد مباشرة
             var marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
             marker.bindPopup("<b>" + (user.email || 'مجهول') + "</b><br>" + msg);
-            loadMessages(); // تحديث الخريطة
+            loadMessages();
         })
         .catch(function(err) {
             alert('❌ فشل الحفظ: ' + err.message);
@@ -160,7 +164,7 @@ function startMap(user) {
 function loadMessages() {
     console.log("🔄 loadMessages تم استدعاؤها");
 
-    // تنظيف العلامات القديمة (مع الحفاظ على طبقة الخريطة)
+    // تنظيف العلامات القديمة
     map.eachLayer(function(layer) {
         if (!!layer.getPopup || !!layer._popup) {
             map.removeLayer(layer);
@@ -195,7 +199,6 @@ function loadMessages() {
             snapshot.forEach(function(doc) {
                 var data = doc.data();
                 var docId = doc.id;
-                console.log("📄 رسالة:", data.message, "الموقع:", data.latitude, data.longitude);
 
                 if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
                     var likes = data.likes || 0;
@@ -241,8 +244,6 @@ function loadMessages() {
                                 });
                         }
                     });
-                } else {
-                    console.warn("⚠️ إحداثيات غير صالحة:", data.latitude, data.longitude);
                 }
             });
         })
