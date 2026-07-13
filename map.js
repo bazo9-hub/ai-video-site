@@ -18,7 +18,7 @@ var blueIcon = L.divIcon({
 });
 
 // ======================================================
-// ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
+// ===== دوال التفاعل =====
 // ======================================================
 
 window.toggleLike = function(docId) {
@@ -114,7 +114,7 @@ function startMap(user) {
         maxZoom: 18
     }).addTo(map);
 
-    // ===== موقع المستخدم (دبوس أزرق) =====
+    // ===== موقع المستخدم =====
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
@@ -124,7 +124,7 @@ function startMap(user) {
         alert('لم نتمكن من جلب موقعك، لكنك تقدر تختار أي مكان.');
     });
 
-    // ===== الضغط على الخريطة لكتابة رسالة =====
+    // ===== كتابة رسالة =====
     map.on('click', function(e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
@@ -143,7 +143,10 @@ function startMap(user) {
         })
         .then(function() {
             alert('✅ تم حفظ رسالتك!');
-            loadMessages();
+            // نضيف الدبوس الجديد مباشرة
+            var marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
+            marker.bindPopup("<b>" + (user.email || 'مجهول') + "</b><br>" + msg);
+            loadMessages(); // تحديث الخريطة
         })
         .catch(function(err) {
             alert('❌ فشل الحفظ: ' + err.message);
@@ -153,9 +156,11 @@ function startMap(user) {
     loadMessages();
 }
 
-// ===== تحميل الرسائل وعرضها مع الأزرار =====
+// ===== تحميل الرسائل =====
 function loadMessages() {
-    // تنظيف الخريطة من العلامات القديمة
+    console.log("🔄 loadMessages تم استدعاؤها");
+
+    // تنظيف العلامات القديمة (مع الحفاظ على طبقة الخريطة)
     map.eachLayer(function(layer) {
         if (!!layer.getPopup || !!layer._popup) {
             map.removeLayer(layer);
@@ -170,19 +175,28 @@ function loadMessages() {
         maxZoom: 18
     }).addTo(map);
 
-    // إعادة علامة موقع المستخدم (دبوس أزرق)
+    // إعادة علامة موقع المستخدم
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
         L.marker([lat, lng], { icon: blueIcon }).addTo(map).bindPopup('📍 أنت هنا');
     }, function() {});
 
-    // جلب الرسائل وعرضها مع الأزرار
+    // جلب الرسائل
     db.collection("messages").get()
         .then(function(snapshot) {
+            console.log("✅ تم جلب الرسائل، عددها:", snapshot.size);
+            
+            if (snapshot.size === 0) {
+                console.log("⚠️ لا توجد رسائل في قاعدة البيانات");
+                return;
+            }
+
             snapshot.forEach(function(doc) {
                 var data = doc.data();
                 var docId = doc.id;
+                console.log("📄 رسالة:", data.message, "الموقع:", data.latitude, data.longitude);
+
                 if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
                     var likes = data.likes || 0;
                     var isOwner = (currentUser && currentUser.uid === data.uid);
@@ -203,8 +217,9 @@ function loadMessages() {
                     var marker = L.marker([data.latitude, data.longitude], { icon: redIcon }).addTo(map);
                     if (marker._icon) marker._icon.classList.add('marker-animate');
                     marker.bindPopup(popupContent);
+                    console.log("✅ تم إضافة دبوس أحمر في:", data.latitude, data.longitude);
 
-                    // جلب التعليقات عند فتح النافذة
+                    // جلب التعليقات
                     marker.on('popupopen', function() {
                         var container = document.getElementById('comments-' + docId);
                         if (container) {
@@ -226,10 +241,12 @@ function loadMessages() {
                                 });
                         }
                     });
+                } else {
+                    console.warn("⚠️ إحداثيات غير صالحة:", data.latitude, data.longitude);
                 }
             });
         })
         .catch(function(err) {
-            console.error('خطأ في تحميل الرسائل:', err);
+            console.error("❌ خطأ في جلب الرسائل:", err);
         });
 }
