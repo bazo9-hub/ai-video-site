@@ -1,10 +1,10 @@
 // ======================================================
-// ===== أيقونات باستخدام L.icon (مضمونة الظهور) =====
+// ===== أيقونات باستخدام L.icon (صور مضمونة) =====
 // ======================================================
 
-// أيقونة حمراء للرسائل
+// أيقونة حمراء للرسائل (من رابط موثوق)
 var redIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet-color-markers@1.2.0/img/marker-icon-red.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -14,7 +14,7 @@ var redIcon = L.icon({
 
 // أيقونة زرقاء للموقع
 var blueIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet-color-markers@1.2.0/img/marker-icon-blue.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -23,7 +23,7 @@ var blueIcon = L.icon({
 });
 
 // ======================================================
-// ===== دوال التفاعل (إعجابات، تعليقات، حذف) =====
+// ===== دوال التفاعل =====
 // ======================================================
 
 window.toggleLike = function(docId) {
@@ -119,7 +119,7 @@ function startMap(user) {
         maxZoom: 18
     }).addTo(map);
 
-    // ===== موقع المستخدم =====
+    // ===== موقع المستخدم (دبوس أزرق) =====
     navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude;
         var lng = pos.coords.longitude;
@@ -148,6 +148,7 @@ function startMap(user) {
         })
         .then(function() {
             alert('✅ تم حفظ رسالتك!');
+            // نضيف الدبوس الجديد مباشرة
             var marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
             marker.bindPopup("<b>" + (user.email || 'مجهول') + "</b><br>" + msg);
             loadMessages();
