@@ -1,25 +1,23 @@
 // ======================================================
-// ===== أيقونات باستخدام L.icon (صور مضمونة) =====
+// ===== أيقونات باستخدام Emoji 📍 =====
 // ======================================================
 
-// أيقونة حمراء للرسائل (من رابط موثوق)
-var redIcon = L.icon({
-    iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet-color-markers@1.2.0/img/marker-icon-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+// أيقونة حمراء للرسائل (باستخدام إيموجي)
+var redIcon = L.divIcon({
+    className: 'red-marker',
+    html: '📍',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [1, -30]
 });
 
 // أيقونة زرقاء للموقع
-var blueIcon = L.icon({
-    iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet-color-markers@1.2.0/img/marker-icon-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+var blueIcon = L.divIcon({
+    className: 'blue-marker',
+    html: '📍',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [1, -30]
 });
 
 // ======================================================
@@ -148,7 +146,6 @@ function startMap(user) {
         })
         .then(function() {
             alert('✅ تم حفظ رسالتك!');
-            // نضيف الدبوس الجديد مباشرة
             var marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
             marker.bindPopup("<b>" + (user.email || 'مجهول') + "</b><br>" + msg);
             loadMessages();
