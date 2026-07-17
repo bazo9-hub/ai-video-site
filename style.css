@@ -103,3 +103,20 @@ textarea { height:60px; resize:vertical; }
     #profilePage .profile-btn-group button { min-width:100%; padding:12px; font-size:16px; }
     .back-btn { width:100%; text-align:center; }
 }
+/* ===== تلوين الإيموجي 📍 ===== */
+.red-marker {
+    color: #ff4757;
+    font-size: 32px;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.blue-marker {
+    color: #1e90ff;
+    font-size: 32px;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.custom-div-icon {
+    background: transparent !important;
+    border: none !important;
+}
